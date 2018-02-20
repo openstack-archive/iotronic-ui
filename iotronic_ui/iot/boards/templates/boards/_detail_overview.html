@@ -1,0 +1,51 @@
+{% load i18n sizeformat %}
+
+<div class="detail">
+  <dl class="dl-horizontal">
+    <dt>{% trans "Name" %}</dt>
+    <dd>{{ board.name }}</dd>
+    <dt>{% trans "Status" %}</dt>
+    <dd>{{ board.status }}</dd>
+    <dt>{% trans "Type" %}</dt>
+    <dd>{{ board.type }}</dd>
+    <dt>{% trans "ID" %}</dt>
+    <dd>{{ board.uuid }}</dd>
+    <dt>{% trans "Code" %}</dt>
+    <dd>{{ board.code }}</dd>
+    <dt>{% trans "Creation data" %}</dt>
+    <dd>{{ board.created_at }}</dd>
+    <dt>{% trans "Location" %}</dt>
+    <dd>Latitude: {{ coordinates.latitude }}</dd>
+    <dd>Longitude: {{ coordinates.longitude }}</dd>
+    <dd>Altitude: {{ coordinates.altitude }}</dd>
+    <dt>{% trans "Mobile" %}</dt>
+    <dd>{{ board.mobile }}</dd>
+    <dt>{% trans "Extra" %}</dt>
+    <dd>{{ board.extra }}</dd>
+  </dl>
+</div>
+
+<!--<div id="mapdiv" style="min-height:300px; margin-bottom: 10px;" data-coordinates='[{"latitude": "{{ coordinates.latitude }}", "longitude": "{{ coordinates.longitude }}", "altitude": "{{ coordinates.altitude }}"}]'>-->
+<div id="mapdiv" style="min-height:300px; margin-bottom: 10px;">
+	<script>
+		$(document).ready(function(){
+			/*
+			coordinates = JSON.parse(document.getElementById("mapdiv").getAttribute("data-coordinates"));
+			lat = coordinates[0]["latitude"];
+			lon = coordinates[0]["longitude"];
+			alt = coordinates[0]["altitude"];
+			*/
+			var lat = "{{ coordinates.latitude }}";
+			var lon = "{{ coordinates.longitude }}";
+			var alt = "{{ coordinates.altitude }}";
+			var label = "{{ board.name }}";
+			var status = "{{ board.status }}";
+			var updated = "{{ board.updated_at }}";
+
+			var array_coord = {"coordinates" : [{"lat": lat, "lon": lon, "alt": alt, "updated": updated, "label": label, "status": status}]}
+
+			render_map("mapdiv", array_coord);
+		});
+	</script>
+</div>
+
