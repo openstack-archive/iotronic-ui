@@ -1,0 +1,3 @@
+- job:
+    required-projects:
+        openstack/horizon
