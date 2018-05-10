@@ -80,10 +80,9 @@ def board_delete(request, board_id):
 def plugin_list(request, detail=None, project=None, with_public=False,
                 all_plugins=False):
     """List plugins."""
-    plugin = iotronicclient(request).plugin()
-    plugins = plugin.list(detail, project,
-                          with_public=with_public,
-                          all_plugins=all_plugins)
+    plugins = iotronicclient(request).plugin.list(detail, project, \
+                                                  with_public=with_public, \
+                                                  all_plugins=all_plugins)
     return plugins
 
 
@@ -119,30 +118,115 @@ def plugin_delete(request, plugin_id):
 # PLUGIN MANAGEMENT (Board Side)
 def plugin_inject(request, board_id, plugin_id, onboot):
     """Inject plugin on board(s)."""
-    plugin_injection = iotronicclient(request).plugin_injection()
-    plugin = plugin_injection.plugin_inject(board_id, plugin_id, onboot)
+    plugin = iotronicclient(request).plugin_injection. \
+                                     plugin_inject(board_id, \
+                                                   plugin_id, \
+                                                   onboot)
     return plugin
 
 
 def plugin_action(request, board_id, plugin_id, action, params={}):
     """Start/Stop/Call actions on board(s)."""
-    plugin_injection = iotronicclient(request).plugin_injection()
-    plugin = plugin_injection.plugin_action(board_id,
-                                            plugin_id,
-                                            action,
-                                            params)
+    plugin = iotronicclient(request).plugin_injection. \
+                                     plugin_action(board_id,
+                                                   plugin_id,
+                                                   action,
+                                                   params)
     return plugin
 
 
 def plugin_remove(request, board_id, plugin_id):
     """Inject plugin on board(s)."""
-    plugin_injection = iotronicclient(request).plugin_injection()
-    plugin = plugin_injection.plugin_remove(board_id, plugin_id)
+    plugin = iotronicclient(request).plugin_injection. \
+                                     plugin_remove(board_id, plugin_id)
     return plugin
 
 
 def plugins_on_board(request, board_id):
     """Plugins on board."""
-    plugin_injection = iotronicclient(request).plugin_injection()
-    plugins = plugin_injection.plugins_on_board(board_id)
-    return plugins
+    plugins = iotronicclient(request).plugin_injection. \
+                                      plugins_on_board(board_id)
+
+    detailed_plugins = []
+    # fields = {"name", "public", "callable"}
+    fields = {"name"}
+    for plugin in plugins:
+        details = iotronicclient(request).plugin.get(plugin.plugin, fields)
+        detailed_plugins.append({"name": details._info["name"],
+                                 "id": plugin.plugin})
+
+    return detailed_plugins
+
+
+# SERVICE MANAGEMENT
+def service_list(request, detail=None):
+    """List services."""
+    services = iotronicclient(request).service.list(detail)
+    return services
+
+
+def service_get(request, service_id, fields):
+    """Get service info."""
+    service = iotronicclient(request).service.get(service_id, fields)
+    return service
+
+
+def service_create(request, name, port, protocol):
+    """Create service."""
+    params = {"name": name,
+              "port": port,
+              "protocol": protocol}
+    service = iotronicclient(request).service.create(**params)
+    return service
+
+
+def service_update(request, service_id, patch):
+    """Update service."""
+    service = iotronicclient(request).service.update(service_id, patch)
+    return service
+
+
+def service_delete(request, service_id):
+    """Delete service."""
+    service = iotronicclient(request).service.delete(service_id)
+    return service
+
+
+def services_on_board(request, board_id, detail=False):
+    """List services on board."""
+    services = iotronicclient(request).exposed_service \
+                                      .services_on_board(board_id)
+
+    if detail:
+        detailed_services = []
+        fields = {"name", "port", "protocol"}
+
+        for service in services:
+            details = iotronicclient(request). \
+                      service.get(service._info["service"], fields)
+
+            detailed_services.append({"name": details._info["name"],
+                                      "public_port":
+                                          service._info["public_port"],
+                                      "port": details._info["port"],
+                                      "protocol": details._info["protocol"]})
+
+        return detailed_services
+
+    else:
+        return services
+
+
+def service_action(request, board_id, service_id, action):
+    """Action on service."""
+    service_action = iotronicclient(request).exposed_service. \
+                     service_action(board_id, service_id, action)
+    return service_action
+
+
+def restore_services(request, board_id):
+    """Restore services."""
+    service_restore = iotronicclient(request).exposed_service. \
+                      restore_services(board_id)
+    return service_restore
+

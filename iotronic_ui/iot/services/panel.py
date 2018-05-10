@@ -14,13 +14,12 @@ from django.utils.translation import ugettext_lazy as _
 
 import horizon
 
+# from openstack_dashboard.api import keystone
 
-class Iot(horizon.Dashboard):
-    name = _("IoT")
-    slug = "iot"
-    panels = ('boards', 'plugins', 'services')  # Add your panels here.
 
-    # Specify the slug of the dashboard's default panel.
-    default_panel = 'boards'
+class Services(horizon.Panel):
+    name = _("Services")
+    slug = "services"
+    permissions = ('openstack.services.iot', )
+    # policy_rules = (("iot", "iot:list_all_services"),)
 
-horizon.register(Iot)

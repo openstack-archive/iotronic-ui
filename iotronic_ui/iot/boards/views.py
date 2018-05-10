@@ -84,6 +84,11 @@ class IndexView(tables.DataTableView):
                 exceptions.handle(self.request,
                                   _('Unable to retrieve user boards list.'))
 
+        for board in boards:
+            board_services = iotronic.services_on_board(self.request, board.uuid, True)
+
+            # board.__dict__.update(dict(services=board_services))
+            board._info.update(dict(services=board_services))
         return boards
 
 
@@ -116,7 +121,7 @@ class UpdateView(forms.ModalFormView):
         except Exception:
             redirect = reverse("horizon:iot:boards:index")
             exceptions.handle(self.request,
-                              _('Unable to update board.'),
+                              _('Unable to get board information.'),
                               redirect=redirect)
 
     def get_context_data(self, **kwargs):
@@ -127,8 +132,6 @@ class UpdateView(forms.ModalFormView):
 
     def get_initial(self):
         board = self.get_object()
-
-        # LOG.debug("MELO BOARD INFO: %s", board)
         location = board.location[0]
 
         return {'uuid': board.uuid,
@@ -159,7 +162,7 @@ class RemovePluginsView(forms.ModalFormView):
         except Exception:
             redirect = reverse("horizon:iot:boards:index")
             exceptions.handle(self.request,
-                              _('Unable to remove plugin.'),
+                              _('Unable to get board information.'),
                               redirect=redirect)
 
     def get_context_data(self, **kwargs):
@@ -301,7 +304,18 @@ class DetailView(tabs.TabView):
     def get_data(self):
         board_id = self.kwargs['board_id']
         try:
+
+            board_services = []
+            board_plugins = []
+
             board = iotronic.board_get(self.request, board_id, None)
+            board_services = iotronic.services_on_board(self.request, board_id, True)
+            board._info.update(dict(services=board_services))
+
+            board_plugins = iotronic.plugins_on_board(self.request, board_id)
+            board._info.update(dict(plugins=board_plugins))
+            # LOG.debug("BOARD: %s\n\n%s", board, board._info)
+
         except Exception:
             msg = ('Unable to retrieve board %s information') % {'name':
                                                                  board.name}

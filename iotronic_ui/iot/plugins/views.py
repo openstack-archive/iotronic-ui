@@ -123,7 +123,7 @@ class InjectView(forms.ModalFormView):
         except Exception:
             redirect = reverse("horizon:iot:plugins:index")
             exceptions.handle(self.request,
-                              _('Unable to inject plugin.'),
+                              _('Unable to get plugin information.'),
                               redirect=redirect)
 
     def get_context_data(self, **kwargs):
@@ -167,7 +167,7 @@ class StartView(forms.ModalFormView):
         except Exception:
             redirect = reverse("horizon:iot:plugins:index")
             exceptions.handle(self.request,
-                              _('Unable to start plugin.'),
+                              _('Unable to get plugin information.'),
                               redirect=redirect)
 
     def get_context_data(self, **kwargs):
@@ -211,7 +211,7 @@ class StopView(forms.ModalFormView):
         except Exception:
             redirect = reverse("horizon:iot:plugins:index")
             exceptions.handle(self.request,
-                              _('Unable to stop plugin.'),
+                              _('Unable to get plugin information.'),
                               redirect=redirect)
 
     def get_context_data(self, **kwargs):
@@ -255,7 +255,7 @@ class CallView(forms.ModalFormView):
         except Exception:
             redirect = reverse("horizon:iot:plugins:index")
             exceptions.handle(self.request,
-                              _('Unable to call plugin.'),
+                              _('Unable to get plugin information.'),
                               redirect=redirect)
 
     def get_context_data(self, **kwargs):
@@ -299,7 +299,7 @@ class RemoveView(forms.ModalFormView):
         except Exception:
             redirect = reverse("horizon:iot:plugins:index")
             exceptions.handle(self.request,
-                              _('Unable to remove plugin.'),
+                              _('Unable to get plugin information.'),
                               redirect=redirect)
 
     def get_context_data(self, **kwargs):
@@ -342,7 +342,7 @@ class UpdateView(forms.ModalFormView):
         except Exception:
             redirect = reverse("horizon:iot:plugins:index")
             exceptions.handle(self.request,
-                              _('Unable to update plugin.'),
+                              _('Unable to get plugin information.'),
                               redirect=redirect)
 
     def get_context_data(self, **kwargs):
