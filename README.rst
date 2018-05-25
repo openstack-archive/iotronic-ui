@@ -13,52 +13,84 @@ Features
 
 * TODO
 
-Enabling in DevStack
---------------------
-
-Add this repo as an external repository into your ``local.conf`` file::
-
-    [[local|localrc]]
-    enable_plugin iotronic_ui https://github.com/openstack/iotronic_ui
-
 Manual Installation
 -------------------
 
 Begin by cloning the Horizon and IoTronic Panels repositories::
 
-    git clone https://github.com/openstack/horizon
-    git clone https://github.com/openstack/iotronic_ui
+    git clone https://github.com/openstack/horizon.git
+    git clone https://github.com/openstack/iotronic-ui.git
 
-Create a virtual environment and install Horizon dependencies::
+Install IoTronic Panels with all the dependencies::
 
-    cd horizon
-    python tools/install_venv.py
+    cd iotronic-ui
+    pip install -r requirements.txt
+    python setup.py install
 
-Set up your ``local_settings.py`` file::
+Copy the Iotronic API and enable the plugin in Horizon::
 
-    cp openstack_dashboard/local/local_settings.py.example openstack_dashboard/local/local_settings.py
+    cp iotronic_ui/api/iotronic.py /usr/share/openstack-dashboard/openstack_dashboard/api/
+    cp iotronic_ui/enabled/_60*.py /usr/share/openstack-dashboard/openstack_dashboard/enabled/
 
-Open up the copied ``local_settings.py`` file in your preferred text
-editor. You will want to customize several settings:
+To run horizon with the newly enabled IoTronic Panels plugin restart apache::
 
--  ``OPENSTACK_HOST`` should be configured with the hostname of your
-   OpenStack server. Verify that the ``OPENSTACK_KEYSTONE_URL`` and
-   ``OPENSTACK_KEYSTONE_DEFAULT_ROLE`` settings are correct for your
-   environment. (They should be correct unless you modified your
-   OpenStack server to change them.)
+    systemctl restart apache2.service
 
-Install IoTronic Panels with all dependencies in your virtual environment::
+Check the Horizon Login page on your browser and you will see the new Dashboard called "IoT".
 
-    tools/with_venv.sh pip install -e ../iotronic_ui/
+Extra info
+----------
+If you want to enable logs for a better debug follow the following steps or just skip them.::
 
-And enable it in Horizon::
+    mkdir /var/log/horizon
+    touch /var/log/horizon/horizon.log
+    chown -R horizon:horizon horizon
 
-    ln -s ../iotronic_ui/iotronic_ui/enabled/_90_project_iot_panelgroup.py openstack_dashboard/local/enabled
-    ln -s ../iotronic_ui/iotronic_ui/enabled/_91_project_iot_boardss_panel.py openstack_dashboard/local/enabled
+    vim /etc/openstack-dashboard/local_settings.py
 
-To run horizon with the newly enabled IoTronic Panels plugin run::
+        'formatters': {
+            'verbose': {
+                'format': '%(asctime)s %(process)d %(levelname)s %(name)s %(message)s'
+            },
+        },
 
-    ./run_tests.sh --runserver 0.0.0.0:8080
+        ....
 
-to have the application start on port 8080 and the horizon dashboard will be
-available in your browser at http://localhost:8080/
+        'handlers': {
+            ....
+            'file': {
+                   'level': 'DEBUG',
+                   'class': 'logging.FileHandler',
+                   'filename': '/var/log/horizon/horizon.log',
+                   'formatter': 'verbose',
+             },
+        },
+
+        ....
+
+        'loggers': {
+            ....
+            'horizon': {
+                ....
+                'handlers': ['file'],
+                ....
+            },
+            'openstack_dashboard': {
+                ....
+                'handlers': ['file'],
+                ....
+            },
+            'iotronic_ui': {
+                'handlers': ['file'],
+                'level': 'DEBUG',
+                'propagate': False,
+            },
+        }
+
+Verify if Apache Openstack Dashboard Configuration file is correctly set with what follows::
+
+    vim /etc/apache2/conf-available/openstack-dashboard.conf
+        WSGIApplicationGroup %{GLOBAL}
+
+    service apache2 reload
+    systemctl restart apache2.service
