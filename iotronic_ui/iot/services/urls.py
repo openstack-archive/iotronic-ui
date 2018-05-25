@@ -22,8 +22,6 @@ urlpatterns = [
         name='update'),
     url(r'^(?P<service_id>[^/]+)/action/$', views.ActionView.as_view(),
         name='action'),
-    url(r'^(?P<service_id>[^/]+)/remove/$',
-        views.RemoveServicesView.as_view(), name='remove'),
     url(r'^(?P<service_id>[^/]+)/detail/$', views.ServiceDetailView.as_view(),
         name='detail'),
 ]

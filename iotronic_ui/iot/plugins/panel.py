@@ -14,9 +14,14 @@ from django.utils.translation import ugettext_lazy as _
 
 import horizon
 
+from iotronic_ui.iot import dashboard
+
 
 class Plugins(horizon.Panel):
     name = _("Plugins")
     slug = "plugins"
     # policy_rules = (("iot", "iot:list_all_plugins"),
     #                ("iot", "iot:list_project_plugins"))
+
+
+dashboard.Iot.register(Plugins)

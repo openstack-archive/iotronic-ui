@@ -67,13 +67,6 @@ class IndexView(tables.DataTableView):
 
         # Other users
         else:
-            # FROM
-            """
-            msg = _("Insufficient privilege level to view
-                    plugins information.")
-            messages.info(self.request, msg)
-            """
-            # TO
             try:
                 plugins = iotronic.plugin_list(self.request, None, None,
                                                with_public=True)

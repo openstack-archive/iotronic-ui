@@ -52,7 +52,8 @@ class IndexView(tables.DataTableView):
                                   _('Unable to retrieve services list.'))
 
         # Admin_iot_project
-        elif policy.check((("iot", "iot:list_project_services"),), self.request):
+        elif policy.check((("iot", "iot:list_project_services"),),
+                          self.request):
             try:
                 services = iotronic.service_list(self.request, None)
 
@@ -87,7 +88,7 @@ class UpdateView(forms.ModalFormView):
     template_name = 'iot/services/update.html'
     modal_header = _("Update Service")
     form_id = "update_service_form"
-    form_class = project_forms.UpdateBoardForm
+    form_class = project_forms.UpdateServiceForm
     submit_label = _("Update Service")
     submit_url = "horizon:iot:services:update"
     success_url = reverse_lazy('horizon:iot:services:index')
@@ -96,8 +97,9 @@ class UpdateView(forms.ModalFormView):
     @memoized.memoized_method
     def get_object(self):
         try:
-            return iotronic.service_get(self.request, self.kwargs['service_id'],
-                                      None)
+            return iotronic.service_get(self.request,
+                                        self.kwargs['service_id'],
+                                        None)
         except Exception:
             redirect = reverse("horizon:iot:services:index")
             exceptions.handle(self.request,
@@ -133,8 +135,9 @@ class ActionView(forms.ModalFormView):
     @memoized.memoized_method
     def get_object(self):
         try:
-            return iotronic.service_get(self.request, self.kwargs['service_id'],
-                                       None)
+            return iotronic.service_get(self.request,
+                                        self.kwargs['service_id'],
+                                        None)
         except Exception:
             redirect = reverse("horizon:iot:services:index")
             exceptions.handle(self.request,
@@ -163,43 +166,6 @@ class ActionView(forms.ModalFormView):
                 'board_list': board_list}
 
 
-class RemoveServicesView(forms.ModalFormView):
-    template_name = 'iot/services/remove.html'
-    modal_header = _("Remove Service")
-    form_id = "remove_service_form"
-    form_class = project_forms.RemoveServicesForm
-    submit_label = _("Remove Service")
-    # submit_url = reverse_lazy("horizon:iot:boards:removeplugins")
-    submit_url = "horizon:iot:services:remove"
-    success_url = reverse_lazy('horizon:iot:services:index')
-    page_title = _("Remove Service")
-
-    @memoized.memoized_method
-    def get_object(self):
-        try:
-            return iotronic.service_get(self.request, self.kwargs['service_id'],
-                                      None)
-        except Exception:
-            redirect = reverse("horizon:iot:services:index")
-            exceptions.handle(self.request,
-                              _('Unable to get service information.'),
-                              redirect=redirect)
-
-    def get_context_data(self, **kwargs):
-        context = super(RemoveServicesView, self).get_context_data(**kwargs)
-        args = (self.get_object().uuid,)
-        context['submit_url'] = reverse(self.submit_url, args=args)
-        return context
-
-    def get_initial(self):
-        service = self.get_object()
-
-        return {'uuid': service.uuid,
-                'name': service.name,
-                'port': service.port,
-                'protocol': service.protocol}
-
-
 class DetailView(tabs.TabView):
     tab_group_class = project_tabs.ServiceDetailTabs
     template_name = 'horizon/common/_detail.html'
@@ -224,8 +190,8 @@ class DetailView(tabs.TabView):
         try:
             service = iotronic.service_get(self.request, service_id, None)
         except Exception:
-            msg = ('Unable to retrieve service %s information') % {'name':
-                                                                 service.name}
+            s = service.name
+            msg = ('Unable to retrieve service %s information') % {'name': s}
             exceptions.handle(self.request, msg, ignore=True)
         return service
 

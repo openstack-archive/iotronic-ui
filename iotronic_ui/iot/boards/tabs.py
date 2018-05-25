@@ -21,7 +21,7 @@ LOG = logging.getLogger(__name__)
 
 """
 import inspect
-LOG.debug('MELO CLASSES: %s',
+LOG.debug('CLASSES: %s',
           inspect.getmembers(tabs, predicate=inspect.isclass))
 """
 
@@ -34,12 +34,14 @@ class OverviewTab(tabs.Tab):
     def get_context_data(self, request):
 
         coordinates = self.tab_group.kwargs['board'].__dict__['location'][0]
+        ports = self.tab_group.kwargs['board']._info['ports']
         services = self.tab_group.kwargs['board']._info['services']
         plugins = self.tab_group.kwargs['board']._info['plugins']
 
         return {"board": self.tab_group.kwargs['board'],
                 "coordinates": coordinates,
                 "services": services,
+                "ports": ports,
                 "plugins": plugins,
                 "is_superuser": request.user.is_superuser}
 

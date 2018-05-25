@@ -41,17 +41,18 @@ class CreateServiceForm(forms.SelfHandlingForm):
 
     def handle(self, request, data):
         try:
-            # LOG.error("DATA: %s", data)
-            service = iotronic.service_create(request, data["name"],
-                                          data["port"], data["protocol"])
-            messages.success(request, _("Service created successfully."))
+            iotronic.service_create(request, data["name"],
+                                    data["port"], data["protocol"])
 
-            return service
+            messages.success(request, _("Service " + str(data["name"]) +
+                                        " created successfully."))
+            return True
+
         except Exception:
             exceptions.handle(request, _('Unable to create service.'))
 
 
-class UpdateBoardForm(forms.SelfHandlingForm):
+class UpdateServiceForm(forms.SelfHandlingForm):
     uuid = forms.CharField(label=_("Service ID"), widget=forms.HiddenInput)
     name = forms.CharField(label=_("Service Name"))
     port = forms.IntegerField(label=_("Port"))
@@ -65,23 +66,23 @@ class UpdateBoardForm(forms.SelfHandlingForm):
 
     def __init__(self, *args, **kwargs):
 
-        super(UpdateBoardForm, self).__init__(*args, **kwargs)
+        super(UpdateServiceForm, self).__init__(*args, **kwargs)
 
         # Admin
         if policy.check((("iot", "iot:update_services"),), self.request):
-            # LOG.debug("MELO ADMIN")
+            # LOG.debug("ADMIN")
             pass
 
         # Manager or Admin of the iot project
         elif (policy.check((("iot", "iot_manager"),), self.request) or
               policy.check((("iot", "iot_admin"),), self.request)):
-            # LOG.debug("MELO NO-edit IOT ADMIN")
+            # LOG.debug("NO-edit IOT ADMIN")
             pass
 
         # Other users
         else:
             if self.request.user.id != kwargs["initial"]["owner"]:
-                # LOG.debug("MELO IMMUTABLE FIELDS")
+                # LOG.debug("IMMUTABLE FIELDS")
                 self.fields["name"].widget.attrs = {'readonly': 'readonly'}
                 self.fields["port"].widget.attrs = {'readonly': 'readonly'}
                 self.fields["protocol"].widget.attrs = {'readonly': 'readonly'}
@@ -89,12 +90,13 @@ class UpdateBoardForm(forms.SelfHandlingForm):
     def handle(self, request, data):
         try:
             iotronic.service_update(request, data["uuid"],
-                                  {"name": data["name"],
-                                   "port": data["port"],
-                                   "protocol": data["protocol"]})
+                                    {"name": data["name"],
+                                     "port": data["port"],
+                                     "protocol": data["protocol"]})
 
             messages.success(request, _("Service updated successfully."))
             return True
+
         except Exception:
             exceptions.handle(request, _('Unable to update service.'))
 
@@ -117,7 +119,9 @@ class ServiceActionForm(forms.SelfHandlingForm):
 
     action = forms.ChoiceField(
         label=_("Action"),
-        choices=[('ServiceEnable', _('Enable')), ('ServiceDisable', _('Disable')), ('ServiceRestore', _('Restore'))],
+        choices=[('ServiceEnable', _('Enable')),
+                 ('ServiceDisable', _('Disable')),
+                 ('ServiceRestore', _('Restore'))],
         widget=forms.Select(
             attrs={'class': 'switchable', 'data-slug': 'slug-action'},
         )
@@ -128,10 +132,7 @@ class ServiceActionForm(forms.SelfHandlingForm):
         super(ServiceActionForm, self).__init__(*args, **kwargs)
         # input=kwargs.get('initial',{})
 
-        boardslist_length = len(kwargs["initial"]["board_list"])
-
         self.fields["board_list"].choices = kwargs["initial"]["board_list"]
-        # self.fields["board_list"].max_length = boardslist_length
 
     def handle(self, request, data):
 
@@ -142,60 +143,20 @@ class ServiceActionForm(forms.SelfHandlingForm):
                 if key == board:
 
                     try:
-                        action = None
                         action = iotronic.service_action(request, key,
-                                                        data["uuid"],
-                                                        data["action"])
-
-                        message_text = "Action executed successfully on " \
-                                       "board " + str(value) + "."
+                                                         data["uuid"],
+                                                         data["action"])
+                        message_text = action
                         messages.success(request, _(message_text))
 
                         if counter != len(data["board_list"]) - 1:
                             counter += 1
                         else:
-                            return action
+                            return True
+
                     except Exception:
                         message_text = "Unable to execute action on board " \
                                        + str(value) + "."
                         exceptions.handle(request, _(message_text))
 
                     break
-
-
-class RemoveServicesForm(forms.SelfHandlingForm):
-
-    uuid = forms.CharField(label=_("Service ID"), widget=forms.HiddenInput)
-
-    name = forms.CharField(
-        label=_('Service Name'),
-        widget=forms.TextInput(attrs={'readonly': 'readonly'})
-    )
-    port = forms.IntegerField(
-        label=_("Port"),
-        widget=forms.TextInput(attrs={'readonly': 'readonly'})
-    )
-
-    protocol = forms.ChoiceField(
-        label=_("Protocol"),
-        choices=[('TCP', _('TCP')), ('UDP', _('UDP'))],
-        widget=forms.TextInput(attrs={'readonly': 'readonly'})
-    )
-
-    def __init__(self, *args, **kwargs):
-
-        super(RemoveServicesForm, self).__init__(*args, **kwargs)
-        # input=kwargs.get('initial',{})
-
-
-    def handle(self, request, data):
-
-        try:
-            message_text = "Service "+str(data["name"])+" deleted successfully."
-
-            iotronic.service_delete(request, data["uuid"])
-            messages.success(request, _(message_text))
-            return True
-        except Exception:
-            message_text = "Unable to delete service "+str(data["name"])+"."
-            exceptions.handle(request, _(message_text))

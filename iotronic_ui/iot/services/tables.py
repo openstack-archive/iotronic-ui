@@ -22,7 +22,6 @@ from openstack_dashboard import api
 LOG = logging.getLogger(__name__)
 
 
-
 class CreateServiceLink(tables.LinkAction):
     name = "create"
     verbose_name = _("Create Service")
@@ -32,24 +31,13 @@ class CreateServiceLink(tables.LinkAction):
     # policy_rules = (("iot", "iot:create_service"),)
 
 
-class EditBoardLink(tables.LinkAction):
+class EditServiceLink(tables.LinkAction):
     name = "edit"
     verbose_name = _("Edit")
     url = "horizon:iot:services:update"
     classes = ("ajax-modal",)
     icon = "pencil"
     # policy_rules = (("iot", "iot:update_service"),)
-
-
-"""
-class RemoveServicesLink(tables.LinkAction):
-    name = "remove"
-    verbose_name = _("Remove Service(s)")
-    url = "horizon:iot:services:remove"
-    classes = ("ajax-modal",)
-    icon = "plus"
-    # policy_rules = (("iot", "iot:delete_service"),)
-"""
 
 
 class ActionServiceLink(tables.LinkAction):
@@ -106,11 +94,7 @@ class ServicesTable(tables.DataTable):
     class Meta(object):
         name = "services"
         verbose_name = _("services")
-        row_actions = (EditBoardLink, ActionServiceLink, 
+        row_actions = (EditServiceLink, ActionServiceLink,
                        DeleteServicesAction)
         table_actions = (ServiceFilterAction, CreateServiceLink,
-                       DeleteServicesAction)
-
-        # row_actions = (EditBoardLink, RemovePluginsLink, DeleteBoardsAction)
-        # table_actions = (BoardFilterAction, CreateBoardLink,
-        #                  DeleteBoardsAction)
+                         DeleteServicesAction)

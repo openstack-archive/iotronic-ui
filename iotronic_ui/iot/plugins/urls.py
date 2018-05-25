@@ -18,6 +18,8 @@ from iotronic_ui.iot.plugins import views
 urlpatterns = [
     url(r'^$', views.IndexView.as_view(), name='index'),
     url(r'^create/$', views.CreateView.as_view(), name='create'),
+    url(r'^(?P<plugin_id>[^/]+)/update/$', views.UpdateView.as_view(),
+        name='update'),
     url(r'^(?P<plugin_id>[^/]+)/inject/$', views.InjectView.as_view(),
         name='inject'),
     url(r'^(?P<plugin_id>[^/]+)/start/$', views.StartView.as_view(),
@@ -28,8 +30,6 @@ urlpatterns = [
         name='call'),
     url(r'^(?P<plugin_id>[^/]+)/remove/$', views.RemoveView.as_view(),
         name='remove'),
-    url(r'^(?P<plugin_id>[^/]+)/update/$', views.UpdateView.as_view(),
-        name='update'),
     url(r'^(?P<plugin_id>[^/]+)/detail/$', views.PluginDetailView.as_view(),
         name='detail'),
 ]

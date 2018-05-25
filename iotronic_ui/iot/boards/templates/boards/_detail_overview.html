@@ -22,26 +22,50 @@
     <dd>{{ board.mobile }}</dd>
     <dt>{% trans "Extra" %}</dt>
     <dd>{{ board.extra }}</dd>
-    <dt>{% trans "Services" %}</dt>
-    {% if services %}
+  </dl>
+
+  <h4>{% trans "Ports" %}</h4>
+    <hr class="header_rule">
+    <dl class="dl-horizontal">
+      {% if ports %}
+          {% for port in ports %}
+              <dt>{{ port.VIF_name }}</dt>
+              <dd>{{ port.ip }}</dd>
+          {% endfor %}
+      {% else %}
+          <dd>--</dd>
+      {% endif %}
+    </dl>
+
+  <h4>{% trans "Services" %}</h4>
+    <hr class="header_rule">
+    <dl class="dl-horizontal">
+      {% if services %}
         {% for service in services %}
-            <dd>{{ service.name }} [{{ service.protocol }}] {{ service.port }} --> {{ service.public_port }}</dd>
+            <dt>{{ service.name }} [{{ service.protocol }}] {{ service.port }}</dt>
+            <dd>{{ service.public_port }}</dd>
         {% endfor %}
-    {% else %}
+      {% else %}
         <dd>--</dd>
-    {% endif %}
-    <dt>{% trans "Plugins" %}</dt>
-    {% if plugins %}
-        {% for plugin in plugins %}
-            <dd>{{ plugin.name }}</dd>
-        {% endfor %}
-    {% else %}
-        <dd>--</dd>
-    {% endif %}
+      {% endif %}
+    </dl>
+
+  <h4>{% trans "Plugins" %}</h4>
+    <hr class="header_rule">
+    <dl class="dl-horizontal">
+      {% if plugins %}
+          {% for plugin in plugins %}
+              <dt>{{ plugin.name }}</dt>
+              <dd>{{ plugin.id }}</dd>
+          {% endfor %}
+      {% else %}
+          <dd>--</dd>
+      {% endif %}
   </dl>
 </div>
 
 <!--<div id="mapdiv" style="min-height:300px; margin-bottom: 10px;" data-coordinates='[{"latitude": "{{ coordinates.latitude }}", "longitude": "{{ coordinates.longitude }}", "altitude": "{{ coordinates.altitude }}"}]'>-->
+<!--
 <div id="mapdiv" style="min-height:300px; margin-bottom: 10px;">
 	<script>
 		$(document).ready(function(){
@@ -64,4 +88,4 @@
 		});
 	</script>
 </div>
-
+-->

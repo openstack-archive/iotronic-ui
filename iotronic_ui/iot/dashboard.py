@@ -23,4 +23,5 @@ class Iot(horizon.Dashboard):
     # Specify the slug of the dashboard's default panel.
     default_panel = 'boards'
 
+
 horizon.register(Iot)

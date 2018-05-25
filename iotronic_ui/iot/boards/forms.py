@@ -67,12 +67,13 @@ class CreateBoardForm(forms.SelfHandlingForm):
                                  "longitude": str(data["longitude"]),
                                  "altitude": str(data["altitude"])}]
 
-            board = iotronic.board_create(request, data["code"],
-                                          data["mobile"], data["location"],
-                                          data["type"], data["name"])
-            messages.success(request, _("Board created successfully."))
+            iotronic.board_create(request, data["code"],
+                                  data["mobile"], data["location"],
+                                  data["type"], data["name"])
 
-            return board
+            messages.success(request, _("Board created successfully."))
+            return True
+
         except Exception:
             exceptions.handle(request, _('Unable to create board.'))
 
@@ -82,49 +83,54 @@ class UpdateBoardForm(forms.SelfHandlingForm):
     name = forms.CharField(label=_("Board Name"))
     mobile = forms.BooleanField(label=_("Mobile"), required=False)
 
+    """
     latitude = forms.FloatField(label=_("Latitude"))
     longitude = forms.FloatField(label=_("Longitude"))
     altitude = forms.FloatField(label=_("Altitude"))
+    """
 
     def __init__(self, *args, **kwargs):
 
         super(UpdateBoardForm, self).__init__(*args, **kwargs)
 
-        # LOG.debug("MELO INITIAL: %s", kwargs["initial"])
+        # LOG.debug("INITIAL: %s", kwargs["initial"])
 
-        LOG.debug("MELO Manager: %s", policy.check((("iot", "iot_manager"),),
-                                                   self.request))
-        LOG.debug("MELO Admin: %s", policy.check((("iot", "iot_admin"),),
-                                                 self.request))
+        # LOG.debug("Manager: %s", policy.check((("iot", "iot_manager"),),
+        #                                            self.request))
+        # LOG.debug("Admin: %s", policy.check((("iot", "iot_admin"),),
+        #                                          self.request))
 
         # Admin
         if policy.check((("iot", "iot:update_boards"),), self.request):
-            # LOG.debug("MELO ADMIN")
+            # LOG.debug("ADMIN")
             pass
 
         # Manager or Admin of the iot project
         elif (policy.check((("iot", "iot_manager"),), self.request) or
               policy.check((("iot", "iot_admin"),), self.request)):
-            # LOG.debug("MELO NO-edit IOT ADMIN")
+            # LOG.debug("NO-edit IOT ADMIN")
             pass
 
         # Other users
         else:
             if self.request.user.id != kwargs["initial"]["owner"]:
-                # LOG.debug("MELO IMMUTABLE FIELDS")
+                # LOG.debug("IMMUTABLE FIELDS")
                 self.fields["name"].widget.attrs = {'readonly': 'readonly'}
                 self.fields["mobile"].widget.attrs = {'disabled': 'disabled'}
 
+                """
                 self.fields["latitude"].widget.attrs = {'readonly':
                                                         'readonly'}
                 self.fields["longitude"].widget.attrs = {'readonly':
                                                          'readonly'}
                 self.fields["altitude"].widget.attrs = {'readonly':
                                                         'readonly'}
+                """
 
     def handle(self, request, data):
         try:
 
+            """
             data["location"] = [{"latitude": str(data["latitude"]),
                                  "longitude": str(data["longitude"]),
                                  "altitude": str(data["altitude"])}]
@@ -132,11 +138,194 @@ class UpdateBoardForm(forms.SelfHandlingForm):
                                   {"name": data["name"],
                                    "mobile": data["mobile"],
                                    "location": data["location"]})
-
+            """
+            iotronic.board_update(request, data["uuid"],
+                                  {"name": data["name"],
+                                   "mobile": data["mobile"]})
             messages.success(request, _("Board updated successfully."))
             return True
+
         except Exception:
             exceptions.handle(request, _('Unable to update board.'))
+
+
+class EnableServiceForm(forms.SelfHandlingForm):
+
+    uuid = forms.CharField(label=_("Plugin ID"), widget=forms.HiddenInput)
+
+    name = forms.CharField(
+        label=_('Board Name'),
+        widget=forms.TextInput(attrs={'readonly': 'readonly'})
+    )
+
+    service_list = forms.MultipleChoiceField(
+        label=_("Services List"),
+        widget=forms.SelectMultiple(
+            attrs={'class': 'switchable',
+                   'data-slug': 'slug-select-services'}),
+        help_text=_("Add available services from this pool")
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(EnableServiceForm, self).__init__(*args, **kwargs)
+        self.fields["service_list"].choices = kwargs["initial"]["service_list"]
+
+    def handle(self, request, data):
+
+        counter = 0
+        for service in data["service_list"]:
+            try:
+                action = iotronic.service_action(request, data["uuid"],
+                                                 service, "ServiceEnable")
+
+                # message_text = "Service(s) enabled successfully."
+                message_text = action
+                messages.success(request, _(message_text))
+
+                if counter != len(data["service_list"]) - 1:
+                    counter += 1
+                else:
+                    return True
+
+            except Exception:
+                message_text = "Unable to enable service."
+                exceptions.handle(request, _(message_text))
+
+
+class DisableServiceForm(forms.SelfHandlingForm):
+
+    uuid = forms.CharField(label=_("Plugin ID"), widget=forms.HiddenInput)
+
+    name = forms.CharField(
+        label=_('Board Name'),
+        widget=forms.TextInput(attrs={'readonly': 'readonly'})
+    )
+
+    service_list = forms.MultipleChoiceField(
+        label=_("Services List"),
+        widget=forms.SelectMultiple(
+            attrs={'class': 'switchable',
+                   'data-slug': 'slug-select-services'}),
+        help_text=_("Select services to disable from this pool")
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(DisableServiceForm, self).__init__(*args, **kwargs)
+        self.fields["service_list"].choices = kwargs["initial"]["service_list"]
+
+    def handle(self, request, data):
+
+        counter = 0
+        for service in data["service_list"]:
+            try:
+                action = iotronic.service_action(request, data["uuid"],
+                                                 service, "ServiceDisable")
+
+                # message_text = "Service(s) disabled successfully."
+                message_text = action
+                messages.success(request, _(message_text))
+
+                if counter != len(data["service_list"]) - 1:
+                    counter += 1
+                else:
+                    return True
+
+            except Exception:
+                message_text = "Unable to disable service."
+                exceptions.handle(request, _(message_text))
+
+
+class AttachPortForm(forms.SelfHandlingForm):
+
+    uuid = forms.CharField(label=_("Board ID"), widget=forms.HiddenInput)
+
+    name = forms.CharField(
+        label=_('Board Name'),
+        widget=forms.TextInput(attrs={'readonly': 'readonly'})
+    )
+
+    networks_list = forms.ChoiceField(
+        label=_("Networks List"),
+        help_text=_("Select network:subnet from the list")
+    )
+
+    def __init__(self, *args, **kwargs):
+
+        super(AttachPortForm, self).__init__(*args, **kwargs)
+
+        net_choices = kwargs["initial"]["networks_list"]
+        self.fields["networks_list"].choices = net_choices
+
+    def handle(self, request, data):
+        array = data["networks_list"].split(':')
+        LOG.debug(array)
+        network_id = array[0]
+        subnet_id = array[1]
+
+        try:
+            attach = iotronic.attach_port(request, data["uuid"],
+                                          network_id, subnet_id)
+
+            # LOG.debug("ATTACH: %s", attach)
+            ip = attach._info["ip"]
+
+            message_text = "Attached  port to ip " + str(ip) + \
+                           " on board " + str(data["name"]) + \
+                           " completed successfully"
+            messages.success(request, _(message_text))
+            return True
+
+        except Exception:
+            message_text = "Unable to attach port on board " + \
+                           str(data["name"])
+
+            exceptions.handle(request, _(message_text))
+
+
+class DetachPortForm(forms.SelfHandlingForm):
+
+    uuid = forms.CharField(label=_("Board ID"), widget=forms.HiddenInput)
+
+    name = forms.CharField(
+        label=_('Board Name'),
+        widget=forms.TextInput(attrs={'readonly': 'readonly'})
+    )
+
+    port_list = forms.MultipleChoiceField(
+        label=_("Ports List"),
+        widget=forms.SelectMultiple(
+            attrs={'class': 'switchable', 'data-slug': 'slug-detacj-ports'}),
+        help_text=_("Select one or more of the following attached ports")
+    )
+
+    def __init__(self, *args, **kwargs):
+
+        super(DetachPortForm, self).__init__(*args, **kwargs)
+        self.fields["port_list"].choices = kwargs["initial"]["ports"]
+
+    def handle(self, request, data):
+        # LOG.debug("DATA: %s %s", data, len(data["port_list"]))
+
+        counter = 0
+
+        for port in data["port_list"]:
+            try:
+                iotronic.detach_port(request, data["uuid"], port)
+
+                message_text = "Detach port " + str(port) + " from board " + \
+                               str(data["name"]) + " completed successfully"
+                messages.success(request, _(message_text))
+
+                if counter != len(data["port_list"]) - 1:
+                    counter += 1
+                else:
+                    return True
+
+            except Exception:
+                message_text = "Unable to detach port " + str(port) + \
+                               " from board " + str(data["name"])
+
+                exceptions.handle(request, _(message_text))
 
 
 class RemovePluginsForm(forms.SelfHandlingForm):
@@ -159,11 +348,7 @@ class RemovePluginsForm(forms.SelfHandlingForm):
 
         super(RemovePluginsForm, self).__init__(*args, **kwargs)
         # input=kwargs.get('initial',{})
-
-        boardslist_length = len(kwargs["initial"]["board_list"])
-
         self.fields["plugin_list"].choices = kwargs["initial"]["plugin_list"]
-        self.fields["plugin_list"].max_length = boardslist_length
 
     def handle(self, request, data):
 
@@ -174,13 +359,8 @@ class RemovePluginsForm(forms.SelfHandlingForm):
                 if key == plugin:
 
                     try:
-                        board = None
+                        iotronic.plugin_remove(request, data["uuid"], key)
 
-                        # LOG.debug('INJECT: %s %s', plugin, value)
-                        # board = iotronic.plugin_create(request, data["name"],
-                        #                                data["public"],
-                        #                                data["callable"],
-                        #                                data["code"])
                         message_text = "Plugin " + str(value) + \
                                        " removed successfully."
                         messages.success(request, _(message_text))
@@ -188,9 +368,63 @@ class RemovePluginsForm(forms.SelfHandlingForm):
                         if counter != len(data["plugin_list"]) - 1:
                             counter += 1
                         else:
-                            return board
+                            return True
+
                     except Exception:
                         message_text = "Unable to remove plugin " \
+                                       + str(value) + "."
+                        exceptions.handle(request, _(message_text))
+
+                    break
+
+
+class RemoveServicesForm(forms.SelfHandlingForm):
+
+    uuid = forms.CharField(label=_("Board ID"), widget=forms.HiddenInput)
+
+    name = forms.CharField(
+        label=_('Board Name'),
+        widget=forms.TextInput(attrs={'readonly': 'readonly'})
+    )
+
+    service_list = forms.MultipleChoiceField(
+        label=_("Services List"),
+        widget=forms.SelectMultiple(
+            attrs={'class': 'switchable',
+                   'data-slug': 'slug-remove-services'}),
+        help_text=_("Select services in this pool")
+    )
+
+    def __init__(self, *args, **kwargs):
+
+        super(RemoveServicesForm, self).__init__(*args, **kwargs)
+        # input=kwargs.get('initial',{})
+        self.fields["service_list"].choices = kwargs["initial"]["service_list"]
+
+    def handle(self, request, data):
+
+        counter = 0
+
+        for service in data["service_list"]:
+            for key, value in self.fields["service_list"].choices:
+                if key == service:
+
+                    try:
+                        disable = iotronic.service_action(request,
+                                                          data["uuid"],
+                                                          key,
+                                                          "ServiceDisable")
+
+                        message_text = disable
+                        messages.success(request, _(message_text))
+
+                        if counter != len(data["service_list"]) - 1:
+                            counter += 1
+                        else:
+                            return True
+
+                    except Exception:
+                        message_text = "Unable to disable service " \
                                        + str(value) + "."
                         exceptions.handle(request, _(message_text))
 

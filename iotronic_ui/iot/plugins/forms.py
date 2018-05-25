@@ -68,18 +68,17 @@ class CreatePluginForm(forms.SelfHandlingForm):
             data["parameters"] = json.loads(data["parameters"])
 
         try:
-            plugin = iotronic.plugin_create(request, data["name"],
-                                            data["public"], data["callable"],
-                                            data["code"], data["parameters"])
-            LOG.debug("MELO API REQ: %s", request)
+            iotronic.plugin_create(request, data["name"],
+                                   data["public"], data["callable"],
+                                   data["code"], data["parameters"])
 
             messages.success(request, _("Plugin created successfully."))
 
-            return plugin
+            return True
         # except iot_exceptions.ClientException:
         except Exception:
-            # LOG.debug("MELO API REQ EXC: %s", request)
-            # LOG.debug("MELO API REQ (DICT): %s", exceptions.__dict__)
+            # LOG.debug("API REQ EXC: %s", request)
+            # LOG.debug("API REQ (DICT): %s", exceptions.__dict__)
             exceptions.handle(request, _('Unable to create plugin.'))
 
 
@@ -97,7 +96,7 @@ class InjectPluginForm(forms.SelfHandlingForm):
     board_list = forms.MultipleChoiceField(
         label=_("Boards List"),
         widget=forms.SelectMultiple(
-            attrs={'class': 'switchable', 'data-slug': 'slug-inject-boards'}),
+            attrs={'class': 'switchable', 'data-slug': 'slug-inject-plugin'}),
         help_text=_("Select boards in this pool ")
     )
 
@@ -120,19 +119,18 @@ class InjectPluginForm(forms.SelfHandlingForm):
                 if key == board:
 
                     try:
-                        plugin = None
-                        plugin = iotronic.plugin_inject(request, key,
+                        inject = iotronic.plugin_inject(request, key,
                                                         data["uuid"],
                                                         data["onboot"])
-                        # LOG.debug("MELO API: %s %s", plugin, request)
-                        message_text = "Plugin injected successfully on " \
-                                       "board " + str(value) + "."
+                        # LOG.debug("API: %s %s", plugin, request)
+                        message_text = inject
                         messages.success(request, _(message_text))
 
                         if counter != len(data["board_list"]) - 1:
                             counter += 1
                         else:
-                            return plugin
+                            return True
+
                     except Exception:
                         message_text = "Unable to inject plugin on board " \
                                        + str(value) + "."
@@ -191,20 +189,19 @@ class StartPluginForm(forms.SelfHandlingForm):
                 if key == board:
 
                     try:
-                        plugin = None
-                        plugin = iotronic.plugin_action(request, key,
+                        action = iotronic.plugin_action(request, key,
                                                         data["uuid"],
                                                         "PluginStart",
                                                         data["parameters"])
-                        # LOG.debug("MELO API: %s %s", plugin, request)
-                        message_text = "Plugin started successfully on board "\
-                                       + str(value) + "."
+                        # LOG.debug("API: %s %s", plugin, request)
+                        message_text = action
                         messages.success(request, _(message_text))
 
                         if counter != len(data["board_list"]) - 1:
                             counter += 1
                         else:
-                            return plugin
+                            return True
+
                     except Exception:
                         message_text = "Unable to start plugin on board " \
                                        + str(value) + "."
@@ -259,20 +256,19 @@ class StopPluginForm(forms.SelfHandlingForm):
                 if key == board:
 
                     try:
-                        plugin = None
-                        plugin = iotronic.plugin_action(request, key,
+                        action = iotronic.plugin_action(request, key,
                                                         data["uuid"],
                                                         "PluginStop",
                                                         data["delay"])
-                        # LOG.debug("MELO API: %s %s", plugin, request)
-                        message_text = "Plugin stopped successfully on board "\
-                                       + str(value) + "."
+                        # LOG.debug("API: %s %s", plugin, request)
+                        message_text = action
                         messages.success(request, _(message_text))
 
                         if counter != len(data["board_list"]) - 1:
                             counter += 1
                         else:
-                            return plugin
+                            return True
+
                     except Exception:
                         message_text = "Unable to stop plugin on board " \
                                        + str(value) + "."
@@ -330,20 +326,19 @@ class CallPluginForm(forms.SelfHandlingForm):
                 if key == board:
 
                     try:
-                        plugin = None
-                        plugin = iotronic.plugin_action(request, key,
+                        action = iotronic.plugin_action(request, key,
                                                         data["uuid"],
                                                         "PluginCall",
                                                         data["parameters"])
-                        # LOG.debug("MELO API: %s %s", plugin, request)
-                        message_text = "Plugin called successfully on board " \
-                                       + str(value) + "."
+
+                        message_text = action
                         messages.success(request, _(message_text))
 
                         if counter != len(data["board_list"]) - 1:
-                            counter += 2
+                            counter += 1
                         else:
-                            return plugin
+                            return True
+
                     except Exception:
                         message_text = "Unable to call plugin on board " \
                                        + str(value) + "."
@@ -387,10 +382,10 @@ class RemovePluginForm(forms.SelfHandlingForm):
                 if key == board:
 
                     try:
-                        plugin = None
-                        plugin = iotronic.plugin_remove(request, key,
-                                                        data["uuid"])
-                        # LOG.debug("MELO API: %s %s", plugin, request)
+                        iotronic.plugin_remove(request,
+                                               key,
+                                               data["uuid"])
+                        # LOG.debug("API: %s %s", plugin, request)
                         message_text = "Plugin removed successfully from" \
                                        + " board " + str(value) + "."
                         messages.success(request, _(message_text))
@@ -398,7 +393,8 @@ class RemovePluginForm(forms.SelfHandlingForm):
                         if counter != len(data["board_list"]) - 1:
                             counter += 1
                         else:
-                            return plugin
+                            return True
+
                     except Exception:
                         message_text = "Unable to remove plugin from board " \
                                        + str(value) + "."
@@ -411,34 +407,7 @@ class UpdatePluginForm(forms.SelfHandlingForm):
 
     uuid = forms.CharField(label=_("Plugin ID"), widget=forms.HiddenInput)
     owner = forms.CharField(label=_("Owner"), widget=forms.HiddenInput)
-
-    """
     name = forms.CharField(label=_("Plugin Name"))
-    public = forms.ChoiceField(label=_("Public"))
-    callable = forms.ChoiceField(label=_("Callable"))
-    code = forms.CharField(label=_("Code"))
-    """
-
-    name = forms.CharField(label=_("Plugin Name"))
-
-    """
-    public = forms.ChoiceField(
-        label=_("Public"),
-        choices =[('false', _('False')), ('true', _('True'))],
-        widget=forms.Select(
-            attrs={'class': 'switchable', 'data-slug': 'slug-public'},
-        )
-    )
-
-
-    callable = forms.ChoiceField(
-        label=_("Callable"),
-        choices =[('false', _('False')), ('true', _('True'))],
-        widget=forms.Select(
-            attrs={'class': 'switchable', 'data-slug': 'slug-callable'},
-        )
-    )
-    """
     public = forms.BooleanField(label=_("Public"), required=False)
     callable = forms.BooleanField(label=_("Callable"), required=False)
 
@@ -454,16 +423,16 @@ class UpdatePluginForm(forms.SelfHandlingForm):
 
         # Admin
         if policy.check((("iot", "iot:update_plugins"),), self.request):
-            # LOG.debug("MELO ADMIN")
+            # LOG.debug("ADMIN")
             pass
 
         # Admin_iot_project
         elif policy.check((("iot", "iot:update_project_plugins"),),
                           self.request):
-            # LOG.debug("MELO IOT ADMIN")
+            # LOG.debug("IOT ADMIN")
 
             if self.request.user.id != kwargs["initial"]["owner"]:
-                # LOG.debug("MELO NO-edit IOT ADMIN")
+                # LOG.debug("NO-edit IOT ADMIN")
                 self.fields["name"].widget.attrs = {'readonly': 'readonly'}
                 self.fields["public"].widget.attrs = {'disabled': 'disabled'}
                 self.fields["callable"].widget.attrs = {'disabled': 'disabled'}
@@ -472,7 +441,7 @@ class UpdatePluginForm(forms.SelfHandlingForm):
         # Other users
         else:
             if self.request.user.id != kwargs["initial"]["owner"]:
-                # LOG.debug("MELO IMMUTABLE FIELDS")
+                # LOG.debug("IMMUTABLE FIELDS")
                 self.fields["name"].widget.attrs = {'readonly': 'readonly'}
                 self.fields["public"].widget.attrs = {'disabled': 'disabled'}
                 self.fields["callable"].widget.attrs = {'disabled': 'disabled'}
@@ -481,7 +450,6 @@ class UpdatePluginForm(forms.SelfHandlingForm):
     def handle(self, request, data):
         try:
 
-            # LOG.debug("MELO DATA: %s", data)
             data["code"] = cPickle.dumps(str(data["code"]))
 
             iotronic.plugin_update(request, data["uuid"],
@@ -489,7 +457,10 @@ class UpdatePluginForm(forms.SelfHandlingForm):
                                     "public": data["public"],
                                     "callable": data["callable"],
                                     "code": data["code"]})
-            messages.success(request, _("Plugin updated successfully."))
+
+            messages.success(request, _("Plugin " + str(data["name"]) +
+                                        " updated successfully."))
             return True
+
         except Exception:
             exceptions.handle(request, _('Unable to update plugin.'))

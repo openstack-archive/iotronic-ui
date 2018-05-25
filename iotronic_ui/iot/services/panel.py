@@ -15,6 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 import horizon
 
 # from openstack_dashboard.api import keystone
+from iotronic_ui.iot import dashboard
 
 
 class Services(horizon.Panel):
@@ -23,3 +24,5 @@ class Services(horizon.Panel):
     permissions = ('openstack.services.iot', )
     # policy_rules = (("iot", "iot:list_all_services"),)
 
+
+dashboard.Iot.register(Services)

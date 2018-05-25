@@ -15,6 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 import horizon
 
 # from openstack_dashboard.api import keystone
+from iotronic_ui.iot import dashboard
 
 
 class Boards(horizon.Panel):
@@ -31,3 +32,6 @@ class Boards(horizon.Panel):
             return False
         return super(Roles, self).can_access(context)
     """
+
+
+dashboard.Iot.register(Boards)

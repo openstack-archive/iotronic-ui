@@ -64,13 +64,56 @@ class RestoreServices(tables.BatchAction):
         api.iotronic.restore_services(request, board_id)
 
 
+class EnableServiceLink(tables.LinkAction):
+    name = "enableservice"
+    verbose_name = _("Enable Service(s)")
+    url = "horizon:iot:boards:enableservice"
+    classes = ("ajax-modal",)
+    # icon = "plus"
+    # policy_rules = (("iot", "iot:service_action"),)
+
+
+class DisableServiceLink(tables.LinkAction):
+    name = "disableservice"
+    verbose_name = _("Disable Service(s)")
+    url = "horizon:iot:boards:disableservice"
+    classes = ("ajax-modal",)
+    # icon = "plus"
+    # policy_rules = (("iot", "iot:service_action"),)
+
+
 class RemovePluginsLink(tables.LinkAction):
     name = "removeplugins"
     verbose_name = _("Remove Plugin(s)")
     url = "horizon:iot:boards:removeplugins"
     classes = ("ajax-modal",)
     icon = "plus"
-    # policy_rules = (("iot", "iot:create_board"),)
+    # policy_rules = (("iot", "iot:remove_plugins"),)
+
+
+class RemoveServicesLink(tables.LinkAction):
+    name = "removeservices"
+    verbose_name = _("Remove Service(s)")
+    url = "horizon:iot:boards:removeservices"
+    classes = ("ajax-modal",)
+    icon = "plus"
+    # policy_rules = (("iot", "iot:remove_services"),)
+
+
+class AttachPortLink(tables.LinkAction):
+    name = "attachport"
+    verbose_name = _("Attach Port")
+    url = "horizon:iot:boards:attachport"
+    classes = ("ajax-modal",)
+    icon = "plus"
+
+
+class DetachPortLink(tables.LinkAction):
+    name = "detachport"
+    verbose_name = _("Detach Port")
+    url = "horizon:iot:boards:detachport"
+    classes = ("ajax-modal",)
+    icon = "plus"
 
 
 class DeleteBoardsAction(tables.DeleteAction):
@@ -117,6 +160,7 @@ class BoardFilterAction(tables.FilterAction):
         return [board for board in boards
                 if q in board.name.lower()]
 
+
 def show_services(board_info):
     template_name = 'iot/boards/_cell_services.html'
     context = board_info._info
@@ -145,7 +189,9 @@ class BoardsTable(tables.DataTable):
     class Meta(object):
         name = "boards"
         verbose_name = _("boards")
-        row_actions = (EditBoardLink, RestoreServices, 
-                       RemovePluginsLink, DeleteBoardsAction)
-        table_actions = (BoardFilterAction, CreateBoardLink, 
-                         RestoreServices, DeleteBoardsAction)
+        row_actions = (EditBoardLink, EnableServiceLink, DisableServiceLink,
+                       RestoreServices, AttachPortLink, DetachPortLink,
+                       RemovePluginsLink, RemoveServicesLink,
+                       DeleteBoardsAction)
+        table_actions = (BoardFilterAction, CreateBoardLink,
+                         DeleteBoardsAction)

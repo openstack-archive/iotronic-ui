@@ -28,7 +28,7 @@ class CreatePluginLink(tables.LinkAction):
     url = "horizon:iot:plugins:create"
     classes = ("ajax-modal",)
     icon = "plus"
-    # policy_rules = (("iot", "iot:create_board"),)
+    # policy_rules = (("iot", "iot:create_plugin"),)
 
 
 class EditPluginLink(tables.LinkAction):
@@ -37,12 +37,12 @@ class EditPluginLink(tables.LinkAction):
     url = "horizon:iot:plugins:update"
     classes = ("ajax-modal",)
     icon = "pencil"
-    # policy_rules = (("iot", "iot:update_board"),)
+    # policy_rules = (("iot", "iot:update_plugin"),)
 
     """
     def allowed(self, request, plugin):
-        # LOG.debug("MELO ALLOWED: %s %s %s", self, request, plugin)
-        # LOG.debug("MELO user: %s", request.user.id)
+        # LOG.debug("ALLOWED: %s %s %s", self, request, plugin)
+        # LOG.debug("user: %s", request.user.id)
 
         return True
     """
@@ -54,7 +54,7 @@ class InjectPluginLink(tables.LinkAction):
     url = "horizon:iot:plugins:inject"
     classes = ("ajax-modal",)
     icon = "plus"
-    # policy_rules = (("iot", "iot:create_board"),)
+    # policy_rules = (("iot", "iot:inject_plugin"),)
 
 
 class StartPluginLink(tables.LinkAction):
@@ -63,7 +63,7 @@ class StartPluginLink(tables.LinkAction):
     url = "horizon:iot:plugins:start"
     classes = ("ajax-modal",)
     icon = "plus"
-    # policy_rules = (("iot", "iot:create_board"),)
+    # policy_rules = (("iot", "iot:start_plugin"),)
 
 
 class StopPluginLink(tables.LinkAction):
@@ -72,7 +72,7 @@ class StopPluginLink(tables.LinkAction):
     url = "horizon:iot:plugins:stop"
     classes = ("ajax-modal",)
     icon = "plus"
-    # policy_rules = (("iot", "iot:create_board"),)
+    # policy_rules = (("iot", "iot:stop_plugin"),)
 
 
 class CallPluginLink(tables.LinkAction):
@@ -81,7 +81,7 @@ class CallPluginLink(tables.LinkAction):
     url = "horizon:iot:plugins:call"
     classes = ("ajax-modal",)
     icon = "plus"
-    # policy_rules = (("iot", "iot:create_board"),)
+    # policy_rules = (("iot", "iot:call_plugin"),)
 
 
 class RemovePluginLink(tables.LinkAction):
@@ -90,7 +90,7 @@ class RemovePluginLink(tables.LinkAction):
     url = "horizon:iot:plugins:remove"
     classes = ("ajax-modal",)
     icon = "plus"
-    # policy_rules = (("iot", "iot:create_board"),)
+    # policy_rules = (("iot", "iot:remove_plugin"),)
 
 
 class DeletePluginsAction(tables.DeleteAction):
@@ -109,7 +109,7 @@ class DeletePluginsAction(tables.DeleteAction):
             u"Deleted Plugins",
             count
         )
-    # policy_rules = (("iot", "iot:delete_board"),)
+    # policy_rules = (("iot", "iot:delete_plugin"),)
 
     """
     def allowed(self, request, role):
@@ -140,14 +140,14 @@ class PluginsTable(tables.DataTable):
     # Overriding get_object_id method because in IoT service the "id" is
     # identified by the field UUID
     def get_object_id(self, datum):
-        # LOG.debug("MELO datum %s", datum)
+        # LOG.debug("datum %s", datum)
         return datum.uuid
 
     # Overriding get_row_actions method because we need to discriminate
     # between Sync and Async plugins
     def get_row_actions(self, datum):
         actions = super(PluginsTable, self).get_row_actions(datum)
-        # LOG.debug("MELO ACTIONS: %s %s", actions[0].name, datum.name)
+        # LOG.debug("ACTIONS: %s %s", actions[0].name, datum.name)
 
         selected_row_actions = []
 
