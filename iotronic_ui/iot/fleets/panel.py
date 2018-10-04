@@ -18,20 +18,11 @@ import horizon
 from iotronic_ui.iot import dashboard
 
 
-class Boards(horizon.Panel):
-    name = _("Boards")
-    slug = "boards"
-    # permissions = ('openstack.services.iot', )
-    # policy_rules = (("iot", "iot:list_all_boards"),)
-
-    # TO BE REMOVED
-    """
-    def can_access(self, context):
-        if keystone.is_multi_domain_enabled() \
-                and not keystone.is_domain_admin(context['request']):
-            return False
-        return super(Roles, self).can_access(context)
-    """
+class Fleets(horizon.Panel):
+    name = _("Fleets")
+    slug = "fleets"
+    # permissions = ('openstack.fleets.iot', )
+    # policy_rules = (("iot", "iot:list_all_fleets"),)
 
 
-dashboard.Iot.register(Boards)
+dashboard.Iot.register(Fleets)

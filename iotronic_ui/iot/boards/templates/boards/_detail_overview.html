@@ -1,28 +1,33 @@
 {% load i18n sizeformat %}
 
 <div class="detail">
-  <dl class="dl-horizontal">
-    <dt>{% trans "Name" %}</dt>
-    <dd>{{ board.name }}</dd>
-    <dt>{% trans "Status" %}</dt>
-    <dd>{{ board.status }}</dd>
-    <dt>{% trans "Type" %}</dt>
-    <dd>{{ board.type }}</dd>
-    <dt>{% trans "ID" %}</dt>
-    <dd>{{ board.uuid }}</dd>
-    <dt>{% trans "Code" %}</dt>
-    <dd>{{ board.code }}</dd>
-    <dt>{% trans "Creation data" %}</dt>
-    <dd>{{ board.created_at }}</dd>
-    <dt>{% trans "Location" %}</dt>
-    <dd>Latitude: {{ coordinates.latitude }}</dd>
-    <dd>Longitude: {{ coordinates.longitude }}</dd>
-    <dd>Altitude: {{ coordinates.altitude }}</dd>
-    <dt>{% trans "Mobile" %}</dt>
-    <dd>{{ board.mobile }}</dd>
-    <dt>{% trans "Extra" %}</dt>
-    <dd>{{ board.extra }}</dd>
-  </dl>
+
+  <h4>{% trans "Info" %}</h4>
+    <hr class="header_rule">
+    <dl class="dl-horizontal">
+      <dt>{% trans "Name" %}</dt>
+      <dd>{{ board.name }}</dd>
+      <dt>{% trans "Status" %}</dt>
+      <dd>{{ board.status }}</dd>
+      <dt>{% trans "Type" %}</dt>
+      <dd>{{ board.type }}</dd>
+      <dt>{% trans "ID" %}</dt>
+      <dd>{{ board.uuid }}</dd>
+      <dt>{% trans "Code" %}</dt>
+      <dd>{{ board.code }}</dd>
+      <dt>{% trans "Creation data" %}</dt>
+      <dd>{{ board.created_at }}</dd>
+      <dt>{% trans "Location" %}</dt>
+      <dd>Latitude: {{ coordinates.latitude }}</dd>
+      <dd>Longitude: {{ coordinates.longitude }}</dd>
+      <dd>Altitude: {{ coordinates.altitude }}</dd>
+      <dt>{% trans "Mobile" %}</dt>
+      <dd>{{ board.mobile }}</dd>
+      <dt>{% trans "Extra" %}</dt>
+      <dd>{{ board.extra }}</dd>
+      <dt>{% trans "Fleet ID" %}</dt>
+      <dd>{{ board.fleet }}</dd>
+    </dl>
 
   <h4>{% trans "Ports" %}</h4>
     <hr class="header_rule">
@@ -61,7 +66,7 @@
       {% else %}
           <dd>--</dd>
       {% endif %}
-  </dl>
+    </dl>
 </div>
 
 <!--<div id="mapdiv" style="min-height:300px; margin-bottom: 10px;" data-coordinates='[{"latitude": "{{ coordinates.latitude }}", "longitude": "{{ coordinates.longitude }}", "altitude": "{{ coordinates.altitude }}"}]'>-->
