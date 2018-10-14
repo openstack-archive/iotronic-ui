@@ -10,18 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from django.utils.translation import ugettext_lazy as _
-
-import horizon
+from horizon.test import helpers as test
 
 
-class Iot(horizon.Dashboard):
-    name = _("IoT")
-    slug = "iot"
-    panels = ('boards', 'plugins', 'services', 'fleets')  # Add your panels here.
-
-    # Specify the slug of the dashboard's default panel.
-    default_panel = 'boards'
-
-
-horizon.register(Iot)
+class FleetsTests(test.TestCase):
+    # Unit tests for boards.
+    def test_me(self):
+        self.assertTrue(1 + 1 == 2)

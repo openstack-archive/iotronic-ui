@@ -175,6 +175,7 @@ class BoardsTable(tables.DataTable):
     type = tables.Column('type', verbose_name=_('Type'))
     # mobile = tables.Column('mobile', verbose_name=_('Mobile'))
     uuid = tables.Column('uuid', verbose_name=_('Board ID'))
+    fleet = tables.Column('fleet', verbose_name=_('Fleet ID'))
     # code = tables.Column('code', verbose_name=_('Code'))
     status = tables.Column('status', verbose_name=_('Status'))
     # location = tables.Column('location', verbose_name=_('Geo'))

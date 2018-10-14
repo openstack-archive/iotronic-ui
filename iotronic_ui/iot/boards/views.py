@@ -123,10 +123,19 @@ class UpdateView(forms.ModalFormView):
         board = self.get_object()
         location = board.location[0]
 
+        # Populate fleets
+        fleets = api.iotronic.fleet_list(self.request, None)
+        fleets.sort(key=lambda b: b.name)
+
+        fleet_list = []
+        for fleet in fleets:
+            fleet_list.append((fleet.uuid, _(fleet.name)))
+
         return {'uuid': board.uuid,
                 'name': board.name,
                 'mobile': board.mobile,
                 'owner': board.owner,
+                'fleet_list': fleet_list,
                 'latitude': location["latitude"],
                 'longitude': location["longitude"],
                 'altitude': location["altitude"]}
@@ -461,6 +470,9 @@ class DetailView(tabs.TabView):
 
     @memoized.memoized_method
     def get_data(self):
+
+        board = []
+
         board_id = self.kwargs['board_id']
         try:
 
