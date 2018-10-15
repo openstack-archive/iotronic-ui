@@ -81,6 +81,14 @@ class CreateBoardForm(forms.SelfHandlingForm):
 class UpdateBoardForm(forms.SelfHandlingForm):
     uuid = forms.CharField(label=_("Board ID"), widget=forms.HiddenInput)
     name = forms.CharField(label=_("Board Name"))
+    
+    fleet_list = forms.ChoiceField(
+        label=_("Fleets List"),
+        widget=forms.Select(
+            attrs={'class': 'switchable', 'data-slug': 'slug-fleet'}),
+        help_text=_("Select fleet in this pool ")
+    )
+
     mobile = forms.BooleanField(label=_("Mobile"), required=False)
 
     """
@@ -92,6 +100,7 @@ class UpdateBoardForm(forms.SelfHandlingForm):
     def __init__(self, *args, **kwargs):
 
         super(UpdateBoardForm, self).__init__(*args, **kwargs)
+        self.fields["fleet_list"].choices = kwargs["initial"]["fleet_list"]
 
         # LOG.debug("INITIAL: %s", kwargs["initial"])
 
@@ -117,6 +126,8 @@ class UpdateBoardForm(forms.SelfHandlingForm):
                 # LOG.debug("IMMUTABLE FIELDS")
                 self.fields["name"].widget.attrs = {'readonly': 'readonly'}
                 self.fields["mobile"].widget.attrs = {'disabled': 'disabled'}
+                self.fields["fleet_list"].widget.attrs = {'disabled':
+                                                          'disabled'}
 
                 """
                 self.fields["latitude"].widget.attrs = {'readonly':
@@ -128,19 +139,20 @@ class UpdateBoardForm(forms.SelfHandlingForm):
                 """
 
     def handle(self, request, data):
+
         try:
 
-            """
-            data["location"] = [{"latitude": str(data["latitude"]),
-                                 "longitude": str(data["longitude"]),
-                                 "altitude": str(data["altitude"])}]
+            # data["location"] = [{"latitude": str(data["latitude"]),
+            #                      "longitude": str(data["longitude"]),
+            #                      "altitude": str(data["altitude"])}]
+            # iotronic.board_update(request, data["uuid"],
+            #                       {"name": data["name"],
+            #                        "mobile": data["mobile"],
+            #                        "location": data["location"]})
+
             iotronic.board_update(request, data["uuid"],
                                   {"name": data["name"],
-                                   "mobile": data["mobile"],
-                                   "location": data["location"]})
-            """
-            iotronic.board_update(request, data["uuid"],
-                                  {"name": data["name"],
+                                   "fleet": data["fleet_list"],
                                    "mobile": data["mobile"]})
             messages.success(request, _("Board updated successfully."))
             return True

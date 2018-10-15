@@ -10,18 +10,18 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from django.utils.translation import ugettext_lazy as _
+from django.conf.urls import url
 
-import horizon
-
-
-class Iot(horizon.Dashboard):
-    name = _("IoT")
-    slug = "iot"
-    panels = ('boards', 'plugins', 'services', 'fleets')  # Add your panels here.
-
-    # Specify the slug of the dashboard's default panel.
-    default_panel = 'boards'
+from iotronic_ui.iot.fleets import views
 
 
-horizon.register(Iot)
+urlpatterns = [
+    url(r'^$', views.IndexView.as_view(), name='index'),
+    url(r'^create/$', views.CreateView.as_view(), name='create'),
+    url(r'^(?P<fleet_id>[^/]+)/update/$', views.UpdateView.as_view(),
+        name='update'),
+    url(r'^(?P<fleet_id>[^/]+)/action/$', views.ActionView.as_view(),
+        name='action'),
+    url(r'^(?P<fleet_id>[^/]+)/detail/$', views.FleetDetailView.as_view(),
+        name='detail'),
+]
