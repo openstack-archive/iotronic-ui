@@ -225,3 +225,38 @@ def attach_port(request, board_id, network_id, subnet_id):
 def detach_port(request, board_id, port_id):
     """Detach port from the board."""
     iotronicclient(request).portonboard.detach_port(board_id, port_id)
+
+
+# FLEETS MANAGEMENT
+def fleet_list(request, detail=None):
+    """Get fleets list."""
+    return iotronicclient(request).fleet.list()
+
+
+def fleet_get(request, fleet_id, fields):
+    """Get fleet info."""
+    return iotronicclient(request).fleet.get(fleet_id, fields)
+
+
+def fleet_create(request, name, description):
+    """Create fleet."""
+    params = {"name": name,
+              "description": description}
+
+    iotronicclient(request).fleet.create(**params)
+
+
+def fleet_delete(request, fleet_id):
+    """Delete fleet."""
+    iotronicclient(request).fleet.delete(fleet_id)
+
+
+def fleet_update(request, fleet_id, patch):
+    """Update fleet."""
+    iotronicclient(request).fleet.update(fleet_id, patch)
+
+
+def fleet_get_boards(request, fleet_id):
+    """Get fleet boards."""
+    return iotronicclient(request).fleet.boards_in_fleet(fleet=fleet_id)
+
