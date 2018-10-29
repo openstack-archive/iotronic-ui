@@ -93,7 +93,8 @@ class FleetsTable(tables.DataTable):
     class Meta(object):
         name = "fleets"
         verbose_name = _("fleets")
-        row_actions = (EditFleetLink, ActionFleetLink,
-                       DeleteFleetsAction)
+        # row_actions = (EditFleetLink, ActionFleetLink,
+        #                DeleteFleetsAction)
+        row_actions = (EditFleetLink, DeleteFleetsAction)
         table_actions = (FleetFilterAction, CreateFleetLink,
                          DeleteFleetsAction)

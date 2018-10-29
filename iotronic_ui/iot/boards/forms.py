@@ -100,7 +100,19 @@ class UpdateBoardForm(forms.SelfHandlingForm):
     def __init__(self, *args, **kwargs):
 
         super(UpdateBoardForm, self).__init__(*args, **kwargs)
-        self.fields["fleet_list"].choices = kwargs["initial"]["fleet_list"]
+
+        # Populate fleets
+        fleets = iotronic.fleet_list(self.request, None)
+        fleets.sort(key=lambda b: b.name)
+
+        fleet_list = []
+        fleet_list.append((None, _("-")))
+        for fleet in fleets:
+            fleet_list.append((fleet.uuid, _(fleet.name)))
+
+        # LOG.debug("FLEETS: %s", fleet_list)
+        self.fields["fleet_list"].choices = fleet_list
+        self.fields["fleet_list"].initial = kwargs["initial"]["fleet_id"]
 
         # LOG.debug("INITIAL: %s", kwargs["initial"])
 

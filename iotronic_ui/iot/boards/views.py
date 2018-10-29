@@ -77,6 +77,16 @@ class IndexView(tables.DataTableView):
 
             # board.__dict__.update(dict(services=board_services))
             board._info.update(dict(services=board_services))
+
+            if board.fleet != None:            
+                fleet_info = api.iotronic.fleet_get(self.request,
+                                                    board.fleet,
+                                                    None)
+
+                board.fleet_name = fleet_info.name
+            else:
+                board.fleet_name = None
+
         return boards
 
 
@@ -123,19 +133,11 @@ class UpdateView(forms.ModalFormView):
         board = self.get_object()
         location = board.location[0]
 
-        # Populate fleets
-        fleets = api.iotronic.fleet_list(self.request, None)
-        fleets.sort(key=lambda b: b.name)
-
-        fleet_list = []
-        for fleet in fleets:
-            fleet_list.append((fleet.uuid, _(fleet.name)))
-
         return {'uuid': board.uuid,
                 'name': board.name,
                 'mobile': board.mobile,
                 'owner': board.owner,
-                'fleet_list': fleet_list,
+                'fleet_id': board.fleet,
                 'latitude': location["latitude"],
                 'longitude': location["longitude"],
                 'altitude': location["altitude"]}
@@ -498,6 +500,16 @@ class DetailView(tabs.TabView):
             board_plugins = api.iotronic.plugins_on_board(self.request,
                                                           board_id)
             board._info.update(dict(plugins=board_plugins))
+
+            # Adding fleet name
+            if board.fleet != None:
+                fleet_info = api.iotronic.fleet_get(self.request,
+                                                    board.fleet,
+                                                    None)
+
+                board.fleet_name = fleet_info.name
+            else:
+                board.fleet_name = None
 
             # LOG.debug("BOARD: %s\n\n%s", board, board._info)
 

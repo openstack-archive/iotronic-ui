@@ -193,7 +193,7 @@ class DetailView(tabs.TabView):
             fleet = iotronic.fleet_get(self.request, fleet_id, None)
             boards = iotronic.fleet_get_boards(self.request, fleet_id)
 
-            LOG.debug('XXXX: %s', boards)
+            # LOG.debug('Boards: %s', boards)
 
             for board in boards:
                 fleet_boards.append(board._info)
