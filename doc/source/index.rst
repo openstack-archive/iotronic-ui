@@ -5,7 +5,7 @@ IoTronic Panels
 Iotronic plugin for the OpenStack Dashboard
 
 * Free software: Apache license
-* Source: http://git.openstack.org/cgit/openstack/iotronic_ui
+* Source: https://git.openstack.org/cgit/openstack/iotronic_ui
 * Bugs: http://bugs.launchpad.net/None
 
 Features
