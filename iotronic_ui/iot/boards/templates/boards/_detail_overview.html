@@ -57,6 +57,19 @@
       {% endif %}
     </dl>
 
+  <h4>{% trans "Web Services" %}</h4>
+    <hr class="header_rule">
+    <dl class="dl-horizontal">
+      {% if webservices %}
+        {% for ws in webservices %}
+            <dt>{{ ws.name }} [{{ ws.port }}]</dt>
+            <dd>{{ ws.uuid }}</dd>
+        {% endfor %}
+      {% else %}
+        <dd>--</dd>
+      {% endif %}
+    </dl>
+
   <h4>{% trans "Plugins" %}</h4>
     <hr class="header_rule">
     <dl class="dl-horizontal">

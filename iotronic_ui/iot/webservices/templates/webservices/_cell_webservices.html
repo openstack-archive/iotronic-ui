@@ -1,0 +1,8 @@
+{% load i18n %}
+{% if webservices %}
+    {% for ws in webservices %}
+        <dd><a target="_blank" href="{{ ws.service_url}}">{{ ws.service_url}}</a></dd>
+    {% endfor %}
+{% else %}
+    <dd>--</dd>
+{% endif %}

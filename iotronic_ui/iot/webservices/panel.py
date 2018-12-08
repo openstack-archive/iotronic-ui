@@ -10,16 +10,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from django.conf.urls import url
+from django.utils.translation import ugettext_lazy as _
 
-from iotronic_ui.iot.fleets import views
+import horizon
+
+# from openstack_dashboard.api import keystone
+from iotronic_ui.iot import dashboard
 
 
-urlpatterns = [
-    url(r'^$', views.IndexView.as_view(), name='index'),
-    url(r'^create/$', views.CreateView.as_view(), name='create'),
-    url(r'^(?P<fleet_id>[^/]+)/update/$', views.UpdateView.as_view(),
-        name='update'),
-    url(r'^(?P<fleet_id>[^/]+)/detail/$', views.FleetDetailView.as_view(),
-        name='detail'),
-]
+class Webservices(horizon.Panel):
+    name = _("Web Services")
+    slug = "webservices"
+    # permissions = ('openstack.webservices.iot', )
+    # policy_rules = (("iot", "iot:list_all_webservices"),)
+
+
+dashboard.Iot.register(Webservices)

@@ -40,15 +40,6 @@ class EditFleetLink(tables.LinkAction):
     # policy_rules = (("iot", "iot:update_fleet"),)
 
 
-class ActionFleetLink(tables.LinkAction):
-    name = "action"
-    verbose_name = _("Fleet Action")
-    url = "horizon:iot:fleets:action"
-    classes = ("ajax-modal",)
-    # icon = "plus"
-    # policy_rules = (("iot", "iot:fleet_action"),)
-
-
 class DeleteFleetsAction(tables.DeleteAction):
     @staticmethod
     def action_present(count):
@@ -93,8 +84,6 @@ class FleetsTable(tables.DataTable):
     class Meta(object):
         name = "fleets"
         verbose_name = _("fleets")
-        # row_actions = (EditFleetLink, ActionFleetLink,
-        #                DeleteFleetsAction)
         row_actions = (EditFleetLink, DeleteFleetsAction)
         table_actions = (FleetFilterAction, CreateFleetLink,
                          DeleteFleetsAction)

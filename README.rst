@@ -43,7 +43,7 @@ If you want to enable logs for a better debug follow the following steps or just
 
     mkdir /var/log/horizon
     touch /var/log/horizon/horizon.log
-    chown -R horizon:horizon horizon
+    chown -R horizon:horizon /var/log/horizon
 
     vim /etc/openstack-dashboard/local_settings.py
 

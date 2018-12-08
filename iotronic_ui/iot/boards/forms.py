@@ -34,7 +34,8 @@ class CreateBoardForm(forms.SelfHandlingForm):
     # MODIFY ---> options: yun, server
     type = forms.ChoiceField(
         label=_("Type"),
-        choices=[('yun', _('YUN')), ('server', _('Server'))],
+        # choices=[('yun', _('YUN')), ('server', _('Server'))],
+        choices=[('gateway', _('Gateway')), ('server', _('Server'))],
         widget=forms.Select(
             attrs={'class': 'switchable', 'data-slug': 'slug-type'},
         )
@@ -175,7 +176,7 @@ class UpdateBoardForm(forms.SelfHandlingForm):
 
 class EnableServiceForm(forms.SelfHandlingForm):
 
-    uuid = forms.CharField(label=_("Plugin ID"), widget=forms.HiddenInput)
+    uuid = forms.CharField(label=_("Board ID"), widget=forms.HiddenInput)
 
     name = forms.CharField(
         label=_('Board Name'),
@@ -216,9 +217,10 @@ class EnableServiceForm(forms.SelfHandlingForm):
                 exceptions.handle(request, _(message_text))
 
 
+"""
 class DisableServiceForm(forms.SelfHandlingForm):
 
-    uuid = forms.CharField(label=_("Plugin ID"), widget=forms.HiddenInput)
+    uuid = forms.CharField(label=_("Board ID"), widget=forms.HiddenInput)
 
     name = forms.CharField(
         label=_('Board Name'),
@@ -257,6 +259,7 @@ class DisableServiceForm(forms.SelfHandlingForm):
             except Exception:
                 message_text = "Unable to disable service."
                 exceptions.handle(request, _(message_text))
+"""
 
 
 class AttachPortForm(forms.SelfHandlingForm):
@@ -350,6 +353,64 @@ class DetachPortForm(forms.SelfHandlingForm):
                                " from board " + str(data["name"])
 
                 exceptions.handle(request, _(message_text))
+
+
+class EnableWebServiceForm(forms.SelfHandlingForm):
+
+    uuid = forms.CharField(label=_("Board ID"), widget=forms.HiddenInput)
+
+    name = forms.CharField(
+        label=_('Board Name'),
+        widget=forms.TextInput(attrs={'readonly': 'readonly'})
+    )
+
+    dns = forms.CharField(label=_("Domain Name Server"))
+    zone = forms.CharField(label=_("Zone"))
+    email = forms.CharField(label=_("Email"))
+
+    def __init__(self, *args, **kwargs):
+        super(EnableWebServiceForm, self).__init__(*args, **kwargs)
+
+    def handle(self, request, data):
+
+        try:
+            iotronic.webservice_enable(request, data["uuid"],
+                                       data["dns"], data["zone"],
+                                       data["email"])
+
+            messages.success(request, _("Web Service enabled on board " +
+                                        str(data["name"]) + "."))
+            return True
+
+        except Exception:
+            message_text = "Unable to enable web service."
+            exceptions.handle(request, _(message_text))
+
+
+class DisableWebServiceForm(forms.SelfHandlingForm):
+
+    uuid = forms.CharField(label=_("Board ID"), widget=forms.HiddenInput)
+
+    name = forms.CharField(
+        label=_('Board Name'),
+        widget=forms.TextInput(attrs={'readonly': 'readonly'})
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(DisableWebServiceForm, self).__init__(*args, **kwargs)
+
+    def handle(self, request, data):
+
+        try:
+            iotronic.webservice_disable(request, data["uuid"])
+
+            messages.success(request, _("Web Service disabled on board " +
+                                        str(data["name"]) + "."))
+            return True
+
+        except Exception:
+            message_text = "Unable to disable web service."
+            exceptions.handle(request, _(message_text))
 
 
 class RemovePluginsForm(forms.SelfHandlingForm):

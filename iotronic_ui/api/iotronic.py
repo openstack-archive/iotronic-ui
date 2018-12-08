@@ -15,7 +15,7 @@
 
 from iotronicclient import client as iotronic_client
 # from django.conf import settings
-# from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _
 
 # from horizon import exceptions
 from horizon.utils.memoized import memoized  # noqa
@@ -260,3 +260,96 @@ def fleet_get_boards(request, fleet_id):
     """Get fleet boards."""
     return iotronicclient(request).fleet.boards_in_fleet(fleet=fleet_id)
 
+
+# WEBSERVICES MANAGEMENT
+def webservice_list(request, detail=None):
+    """Get web services list."""
+    return iotronicclient(request).webservice.list()
+
+
+def webservice_enabled_list(request):
+    """Get enabled web services list."""
+    return iotronicclient(request).enabledwebservice.list()
+
+
+def webservice_get_enabled_info(request, board_id, detail=None):
+    """Get the information of the enabled webservices."""
+    ws_info = []
+
+    ws_enabled = iotronicclient(request).enabledwebservice.list()
+
+    for ws in ws_enabled:
+        if ws.board_uuid == board_id:
+            ws_info = ws
+            break
+
+    return ws_info
+
+
+def webservices_on_board(request, board_id, fields=None):
+    """Get web services on board list."""
+    webservices = iotronicclient(request).webserviceonboard.list(board_id,
+                                                                 fields)
+
+    detailed_webservices = []
+    # fields = {"name", "port", "uuid"}
+
+    for ws in webservices:
+        detailed_webservices.append({"name": ws._info["name"],
+                                     "port": ws._info["port"],
+                                     "uuid": ws._info["uuid"]})
+
+    return detailed_webservices
+
+
+def webservice_get(request, webservice_id, fields):
+    """Get web service info."""
+    return iotronicclient(request).webservice.get(webservice_id, fields)
+
+
+def webservice_expose(request, board_id, name, port, secure):
+    """Expose a web service."""
+    return iotronicclient(request).webserviceonboard.expose(board_id,
+                                                            name,
+                                                            port,
+                                                            secure)
+
+
+def webservice_unexpose(request, webservice_id):
+    """Unexpose a web service from a board."""
+    return iotronicclient(request).webservice.delete(webservice_id)
+
+
+def webservice_enable(request, board, dns, zone, email):
+    """Enable web service."""
+    return iotronicclient(request).webserviceonboard.enable_webservice(board,
+                                                                       dns,
+                                                                       zone,
+                                                                       email)
+
+
+def webservice_disable(request, board):
+    """Disable web service."""
+    return iotronicclient(request).webserviceonboard.disable_webservice(board)
+
+
+def boards_no_webservice(request):
+    """Get all the boards that have not webservice enabled."""
+
+    boards_no_ws_enabled = []
+
+    board_list = iotronicclient(request).board.list()
+    board_list.sort(key=lambda b: b.name)
+
+    board_ws_list = iotronicclient(request).enabledwebservice.list()
+
+    for board in board_list:
+        for i in range(len(board_ws_list)):
+            if board.uuid == board_ws_list[i].board_uuid:
+                break
+            elif ((board.uuid != board_ws_list[i].board_uuid) and
+                 (i==len(board_ws_list)-1)):
+                boards_no_ws_enabled.append((board.uuid, _(board.name)))
+
+    # LOG.debug('COMPLEMENTARY %s', boards_no_ws_enabled)
+    return boards_no_ws_enabled

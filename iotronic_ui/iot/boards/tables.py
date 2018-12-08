@@ -73,6 +73,7 @@ class EnableServiceLink(tables.LinkAction):
     # policy_rules = (("iot", "iot:service_action"),)
 
 
+"""
 class DisableServiceLink(tables.LinkAction):
     name = "disableservice"
     verbose_name = _("Disable Service(s)")
@@ -80,6 +81,7 @@ class DisableServiceLink(tables.LinkAction):
     classes = ("ajax-modal",)
     # icon = "plus"
     # policy_rules = (("iot", "iot:service_action"),)
+"""
 
 
 class RemovePluginsLink(tables.LinkAction):
@@ -112,6 +114,22 @@ class DetachPortLink(tables.LinkAction):
     name = "detachport"
     verbose_name = _("Detach Port")
     url = "horizon:iot:boards:detachport"
+    classes = ("ajax-modal",)
+    icon = "plus"
+
+
+class EnableWebServiceLink(tables.LinkAction):
+    name = "enablewebservice"
+    verbose_name = _("Enable Web Services")
+    url = "horizon:iot:boards:enablewebservice"
+    classes = ("ajax-modal",)
+    icon = "plus"
+
+
+class DisableWebServiceLink(tables.LinkAction):
+    name = "disablewebservice"
+    verbose_name = _("Disable Web Services")
+    url = "horizon:iot:boards:disablewebservice"
     classes = ("ajax-modal",)
     icon = "plus"
 
@@ -191,8 +209,10 @@ class BoardsTable(tables.DataTable):
     class Meta(object):
         name = "boards"
         verbose_name = _("boards")
-        row_actions = (EditBoardLink, EnableServiceLink, DisableServiceLink,
+        # row_actions = (EditBoardLink, EnableServiceLink, DisableServiceLink,
+        row_actions = (EditBoardLink, EnableServiceLink,
                        RestoreServices, AttachPortLink, DetachPortLink,
+                       EnableWebServiceLink, DisableWebServiceLink,
                        RemovePluginsLink, RemoveServicesLink,
                        DeleteBoardsAction)
         table_actions = (BoardFilterAction, CreateBoardLink,

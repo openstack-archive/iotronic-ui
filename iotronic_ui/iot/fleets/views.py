@@ -120,51 +120,6 @@ class UpdateView(forms.ModalFormView):
                 'description': fleet.description}
 
 
-class ActionView(forms.ModalFormView):
-    template_name = 'iot/fleets/action.html'
-    modal_header = _("Fleet Action")
-    form_id = "fleet_action_form"
-    form_class = project_forms.FleetActionForm
-    submit_label = _("Fleet Action")
-    # submit_url = reverse_lazy("horizon:iot:fleets:action")
-    submit_url = "horizon:iot:fleets:action"
-    success_url = reverse_lazy('horizon:iot:fleets:index')
-    page_title = _("Fleet Action")
-
-    @memoized.memoized_method
-    def get_object(self):
-        try:
-            return iotronic.fleet_get(self.request,
-                                        self.kwargs['fleet_id'],
-                                        None)
-        except Exception:
-            redirect = reverse("horizon:iot:fleets:index")
-            exceptions.handle(self.request,
-                              _('Unable to get fleet information.'),
-                              redirect=redirect)
-
-    def get_context_data(self, **kwargs):
-        context = super(ActionView, self).get_context_data(**kwargs)
-        args = (self.get_object().uuid,)
-        context['submit_url'] = reverse(self.submit_url, args=args)
-        return context
-
-    def get_initial(self):
-        fleet = self.get_object()
-
-        # Populate boards
-        boards = iotronic.board_list(self.request, "online", None, None)
-        boards.sort(key=lambda b: b.name)
-
-        board_list = []
-        for board in boards:
-            board_list.append((board.uuid, _(board.name)))
-
-        return {'uuid': fleet.uuid,
-                'name': fleet.name,
-                'board_list': board_list}
-
-
 class DetailView(tabs.TabView):
     tab_group_class = project_tabs.FleetDetailTabs
     template_name = 'horizon/common/_detail.html'

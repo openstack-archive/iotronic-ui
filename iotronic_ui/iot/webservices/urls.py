@@ -12,14 +12,15 @@
 
 from django.conf.urls import url
 
-from iotronic_ui.iot.fleets import views
+from iotronic_ui.iot.webservices import views
 
 
 urlpatterns = [
     url(r'^$', views.IndexView.as_view(), name='index'),
-    url(r'^create/$', views.CreateView.as_view(), name='create'),
-    url(r'^(?P<fleet_id>[^/]+)/update/$', views.UpdateView.as_view(),
-        name='update'),
-    url(r'^(?P<fleet_id>[^/]+)/detail/$', views.FleetDetailView.as_view(),
-        name='detail'),
+    url(r'^(?P<board_id>[^/]+)/expose/$',
+        views.ExposeView.as_view(), name='expose'),
+    url(r'^(?P<board_id>[^/]+)/unexpose/$',
+        views.UnexposeView.as_view(), name='unexpose'),
+    # url(r'^(?P<webservice_id>[^/]+)/detail/$', views.WebserviceDetailView.as_view(),
+    #     name='detail'),
 ]

@@ -10,16 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from django.conf.urls import url
-
-from iotronic_ui.iot.fleets import views
+from horizon.test import helpers as test
 
 
-urlpatterns = [
-    url(r'^$', views.IndexView.as_view(), name='index'),
-    url(r'^create/$', views.CreateView.as_view(), name='create'),
-    url(r'^(?P<fleet_id>[^/]+)/update/$', views.UpdateView.as_view(),
-        name='update'),
-    url(r'^(?P<fleet_id>[^/]+)/detail/$', views.FleetDetailView.as_view(),
-        name='detail'),
-]
+class FleetsTests(test.TestCase):
+    # Unit tests for boards.
+    def test_me(self):
+        self.assertTrue(1 + 1 == 2)

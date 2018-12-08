@@ -75,6 +75,18 @@ class IndexView(tables.DataTableView):
                                                             board.uuid,
                                                             True)
 
+            # TO BE REMOVED
+            # We are filtering the services that starts with "webservice"
+            # ------------------------------------------------------------
+            filter_ws = []
+            for service in board_services:
+                if ((service["name"] != "webservice") and 
+                   (service["name"] != "webservice_ssl")):
+                    filter_ws.append(service)
+
+            board_services = filter_ws
+            # ------------------------------------------------------------
+
             # board.__dict__.update(dict(services=board_services))
             board._info.update(dict(services=board_services))
 
@@ -205,6 +217,7 @@ class EnableServiceView(forms.ModalFormView):
                 'service_list': service_list}
 
 
+"""
 class DisableServiceView(forms.ModalFormView):
     template_name = 'iot/boards/disableservice.html'
     modal_header = _("Disable Service(s)")
@@ -246,15 +259,31 @@ class DisableServiceView(forms.ModalFormView):
 
         service_list = []
 
+
+        # BEFORE filtering necessity
+        # for cloud_service in cloud_services:
+        #     for board_service in board_services:
+        #         if board_service["uuid"] == cloud_service._info["uuid"]:
+        #             service_list.append((cloud_service._info["uuid"],
+        #                                 _(cloud_service._info["name"])))
+
+        # AFTER filtering necessity
+        # We are filtering the services that starts with "webservice"
+        # ------------------------------------------------------------
+
         for cloud_service in cloud_services:
             for board_service in board_services:
-                if board_service["uuid"] == cloud_service._info["uuid"]:
+                if ((board_service["uuid"] == cloud_service._info["uuid"]) and
+                   ((board_service["name"] != "webservice") and
+                   (board_service["name"] != "webservice_ssl"))): 
                     service_list.append((cloud_service._info["uuid"],
                                         _(cloud_service._info["name"])))
+        # ------------------------------------------------------------
 
         return {'uuid': board.uuid,
                 'name': board.name,
                 'service_list': service_list}
+"""
 
 
 class AttachPortView(forms.ModalFormView):
@@ -357,6 +386,80 @@ class DetachPortView(forms.ModalFormView):
                 'ports': ports}
 
 
+class EnableWebServiceView(forms.ModalFormView):
+    template_name = 'iot/boards/enablewebservice.html'
+    modal_header = _("Enable Web Service(s)")
+    form_id = "webservice_enable_form"
+    form_class = project_forms.EnableWebServiceForm
+    submit_label = _("Enable")
+    # submit_url = reverse_lazy("horizon:iot:boards:enablewebservice")
+    submit_url = "horizon:iot:boards:enablewebservice"
+    success_url = reverse_lazy('horizon:iot:boards:index')
+    page_title = _("Enable")
+
+    @memoized.memoized_method
+    def get_object(self):
+        try:
+            return api.iotronic.board_get(self.request,
+                                          self.kwargs['board_id'],
+                                          None)
+
+        except Exception:
+            redirect = reverse("horizon:iot:boards:index")
+            exceptions.handle(self.request,
+                              _('Unable to get board information.'),
+                              redirect=redirect)
+
+    def get_context_data(self, **kwargs):
+        context = super(EnableWebServiceView, self).get_context_data(**kwargs)
+        args = (self.get_object().uuid,)
+        context['submit_url'] = reverse(self.submit_url, args=args)
+        return context
+
+    def get_initial(self):
+        board = self.get_object()
+
+        return {'uuid': board.uuid,
+                'name': board.name}
+
+
+class DisableWebServiceView(forms.ModalFormView):
+    template_name = 'iot/boards/disablewebservice.html'
+    modal_header = _("Disable Web Service(s)")
+    form_id = "webservice_disable_form"
+    form_class = project_forms.DisableWebServiceForm
+    submit_label = _("Disable")
+    # submit_url = reverse_lazy("horizon:iot:boards:disablewebservice")
+    submit_url = "horizon:iot:boards:disablewebservice"
+    success_url = reverse_lazy('horizon:iot:boards:index')
+    page_title = _("Disable")
+
+    @memoized.memoized_method
+    def get_object(self):
+        try:
+            return api.iotronic.board_get(self.request,
+                                          self.kwargs['board_id'],
+                                          None)
+
+        except Exception:
+            redirect = reverse("horizon:iot:boards:index")
+            exceptions.handle(self.request,
+                              _('Unable to get board information.'),
+                              redirect=redirect)
+
+    def get_context_data(self, **kwargs):
+        context = super(DisableWebServiceView, self).get_context_data(**kwargs)
+        args = (self.get_object().uuid,)
+        context['submit_url'] = reverse(self.submit_url, args=args)
+        return context
+
+    def get_initial(self):
+        board = self.get_object()
+
+        return {'uuid': board.uuid,
+                'name': board.name}
+
+
 class RemovePluginsView(forms.ModalFormView):
     template_name = 'iot/boards/removeplugins.html'
     modal_header = _("Remove Plugins from board")
@@ -445,7 +548,15 @@ class RemoveServicesView(forms.ModalFormView):
 
         service_list = []
         for service in services:
-            service_list.append((service["uuid"], _(service["name"])))
+            # service_list.append((service["uuid"], _(service["name"])))
+
+            # TO BE REMOVED
+            # ###########################################################
+            # We are filtering the services that starts with "webservice"
+            if ((service["name"] != "webservice") and
+               (service["name"] != "webservice_ssl")):
+                service_list.append((service["uuid"], _(service["name"])))
+            # ###########################################################
 
         return {'uuid': board.uuid,
                 'name': board.name,
@@ -500,6 +611,10 @@ class DetailView(tabs.TabView):
             board_plugins = api.iotronic.plugins_on_board(self.request,
                                                           board_id)
             board._info.update(dict(plugins=board_plugins))
+
+            board_webservices = api.iotronic.webservices_on_board(self.request,
+                                                                  board_id)
+            board._info.update(dict(webservices=board_webservices))
 
             # Adding fleet name
             if board.fleet != None:
