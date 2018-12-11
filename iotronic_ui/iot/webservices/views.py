@@ -129,8 +129,11 @@ class ExposeView(forms.ModalFormView):
 
     def get_initial(self):
         board = self.get_object()
+        board_exp_info = iotronic.webservice_get_enabled_info(self.request,
+                                                              board.uuid)
+        zone = board_exp_info.dns + "." + board_exp_info.zone
 
-        return {'uuid': board.uuid, 'name': board.name}
+        return {'uuid': board.uuid, 'name': board.name, 'zone': zone}
 
 
 class UnexposeView(forms.ModalFormView):

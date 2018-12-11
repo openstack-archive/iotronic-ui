@@ -217,7 +217,6 @@ class EnableServiceForm(forms.SelfHandlingForm):
                 exceptions.handle(request, _(message_text))
 
 
-"""
 class DisableServiceForm(forms.SelfHandlingForm):
 
     uuid = forms.CharField(label=_("Board ID"), widget=forms.HiddenInput)
@@ -259,7 +258,6 @@ class DisableServiceForm(forms.SelfHandlingForm):
             except Exception:
                 message_text = "Unable to disable service."
                 exceptions.handle(request, _(message_text))
-"""
 
 
 class AttachPortForm(forms.SelfHandlingForm):
@@ -457,59 +455,6 @@ class RemovePluginsForm(forms.SelfHandlingForm):
 
                     except Exception:
                         message_text = "Unable to remove plugin " \
-                                       + str(value) + "."
-                        exceptions.handle(request, _(message_text))
-
-                    break
-
-
-class RemoveServicesForm(forms.SelfHandlingForm):
-
-    uuid = forms.CharField(label=_("Board ID"), widget=forms.HiddenInput)
-
-    name = forms.CharField(
-        label=_('Board Name'),
-        widget=forms.TextInput(attrs={'readonly': 'readonly'})
-    )
-
-    service_list = forms.MultipleChoiceField(
-        label=_("Services List"),
-        widget=forms.SelectMultiple(
-            attrs={'class': 'switchable',
-                   'data-slug': 'slug-remove-services'}),
-        help_text=_("Select services in this pool")
-    )
-
-    def __init__(self, *args, **kwargs):
-
-        super(RemoveServicesForm, self).__init__(*args, **kwargs)
-        # input=kwargs.get('initial',{})
-        self.fields["service_list"].choices = kwargs["initial"]["service_list"]
-
-    def handle(self, request, data):
-
-        counter = 0
-
-        for service in data["service_list"]:
-            for key, value in self.fields["service_list"].choices:
-                if key == service:
-
-                    try:
-                        disable = iotronic.service_action(request,
-                                                          data["uuid"],
-                                                          key,
-                                                          "ServiceDisable")
-
-                        message_text = disable
-                        messages.success(request, _(message_text))
-
-                        if counter != len(data["service_list"]) - 1:
-                            counter += 1
-                        else:
-                            return True
-
-                    except Exception:
-                        message_text = "Unable to disable service " \
                                        + str(value) + "."
                         exceptions.handle(request, _(message_text))
 

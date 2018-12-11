@@ -33,11 +33,15 @@ class ExposeWebserviceForm(forms.SelfHandlingForm):
         widget=forms.TextInput(attrs={'readonly': 'readonly'})
     )
 
+    zone = forms.CharField(label=_("Zone"),
+                           widget=forms.TextInput(attrs={'readonly':
+                                                         'readonly'}))
+
     ws_name = forms.CharField(label=_("Web Service Name"))
 
     port = forms.IntegerField(
         label=_("Port"),
-        help_text=_("The port used by the service")
+        help_text=_("The local port used by the service")
     )
 
     secure = forms.BooleanField(label=_("Secure"), initial=True)
@@ -98,6 +102,5 @@ class UnexposeWebserviceForm(forms.SelfHandlingForm):
                     return True
 
             except Exception:
-                LOG.debug("HERE")
                 message_text = "Unable to unexpose web service."
                 exceptions.handle(request, _(message_text))

@@ -99,6 +99,7 @@ class IndexView(tables.DataTableView):
             else:
                 board.fleet_name = None
 
+        boards.sort(key=lambda b: b.name)
         return boards
 
 
@@ -193,14 +194,26 @@ class EnableServiceView(forms.ModalFormView):
         board_services = api.iotronic.services_on_board(self.request,
                                                         board.uuid,
                                                         True)
-
+        cloud_services.sort(key=lambda b: b.name)
         service_list = []
+        # LOG.debug('CLOUD SERVICES: %s', cloud_services)
 
         for cloud_service in cloud_services:
 
+            uuid = cloud_service._info["uuid"]
+            name = cloud_service._info["name"]
+
             if len(board_services) == 0:
-                service_list.append((cloud_service._info["uuid"],
-                                    _(cloud_service._info["name"])))
+
+                # BEFORE filtering necessity
+                # service_list.append((cloud_service._info["uuid"],
+                #                     _(cloud_service._info["name"])))
+
+                # AFTER filtering necessity
+                # We are filtering the services that starts with "webservice"
+                if ((name != "webservice") and (name != "webservice_ssl")):
+                    service_list.append((uuid, _(name)))
+
             else:
                 counter = 0
                 for board_service in board_services:
@@ -209,15 +222,22 @@ class EnableServiceView(forms.ModalFormView):
                     elif counter != len(board_services) - 1:
                         counter += 1
                     else:
-                        service_list.append((cloud_service._info["uuid"],
-                                            _(cloud_service._info["name"])))
+                        # BEFORE filtering necessity
+                        # service_list.append((uuid, _(name)))
 
+                        # AFTER filtering necessity
+                        # We are filtering the services that starts
+                        # with "webservice"
+                        if ((name != "webservice") and
+                           ("name" != "webservice_ssl")):
+                            service_list.append((uuid, _(name)))
+
+        # LOG.debug('SERVICES: %s', service_list)
         return {'uuid': board.uuid,
                 'name': board.name,
                 'service_list': service_list}
 
 
-"""
 class DisableServiceView(forms.ModalFormView):
     template_name = 'iot/boards/disableservice.html'
     modal_header = _("Disable Service(s)")
@@ -256,21 +276,21 @@ class DisableServiceView(forms.ModalFormView):
         board_services = api.iotronic.services_on_board(self.request,
                                                         board.uuid,
                                                         True)
-
+        cloud_services.sort(key=lambda b: b.name)
         service_list = []
 
-
         # BEFORE filtering necessity
-        # for cloud_service in cloud_services:
-        #     for board_service in board_services:
-        #         if board_service["uuid"] == cloud_service._info["uuid"]:
-        #             service_list.append((cloud_service._info["uuid"],
-        #                                 _(cloud_service._info["name"])))
+        """
+        for cloud_service in cloud_services:
+            for board_service in board_services:
+                if board_service["uuid"] == cloud_service._info["uuid"]:
+                    service_list.append((cloud_service._info["uuid"],
+                                        _(cloud_service._info["name"])))
+        """
 
         # AFTER filtering necessity
         # We are filtering the services that starts with "webservice"
         # ------------------------------------------------------------
-
         for cloud_service in cloud_services:
             for board_service in board_services:
                 if ((board_service["uuid"] == cloud_service._info["uuid"]) and
@@ -283,7 +303,6 @@ class DisableServiceView(forms.ModalFormView):
         return {'uuid': board.uuid,
                 'name': board.name,
                 'service_list': service_list}
-"""
 
 
 class AttachPortView(forms.ModalFormView):
@@ -322,6 +341,7 @@ class AttachPortView(forms.ModalFormView):
         networks = api.neutron.network_list(self.request)
         net_choices = []
 
+        networks.sort(key=lambda b: b.name)
         for net in networks:
             for subnet in net["subnets"]:
                 net_choices.append((net["id"] + ':' + subnet["id"],
@@ -371,6 +391,7 @@ class DetachPortView(forms.ModalFormView):
         # ################################################################
         # LOG.debug("PORTS: %s", ports)
 
+        ports.sort(key=lambda b: b.name)
         filtered_ports = []
         for port in ports:
             if port._info["board_uuid"] == board.uuid:
@@ -388,7 +409,7 @@ class DetachPortView(forms.ModalFormView):
 
 class EnableWebServiceView(forms.ModalFormView):
     template_name = 'iot/boards/enablewebservice.html'
-    modal_header = _("Enable Web Service(s)")
+    modal_header = _("Enable Web Services Manager")
     form_id = "webservice_enable_form"
     form_class = project_forms.EnableWebServiceForm
     submit_label = _("Enable")
@@ -425,7 +446,7 @@ class EnableWebServiceView(forms.ModalFormView):
 
 class DisableWebServiceView(forms.ModalFormView):
     template_name = 'iot/boards/disablewebservice.html'
-    modal_header = _("Disable Web Service(s)")
+    modal_header = _("Disable Web Services Manager")
     form_id = "webservice_disable_form"
     form_class = project_forms.DisableWebServiceForm
     submit_label = _("Disable")
@@ -506,61 +527,6 @@ class RemovePluginsView(forms.ModalFormView):
         return {'uuid': board.uuid,
                 'name': board.name,
                 'plugin_list': plugin_list}
-
-
-class RemoveServicesView(forms.ModalFormView):
-    template_name = 'iot/boards/removeservices.html'
-    modal_header = _("Remove Services from board")
-    form_id = "remove_boardservices_form"
-    form_class = project_forms.RemoveServicesForm
-    submit_label = _("Remove")
-    # submit_url = reverse_lazy("horizon:iot:boards:removeservices")
-    submit_url = "horizon:iot:boards:removeservices"
-    success_url = reverse_lazy('horizon:iot:boards:index')
-    page_title = _("Remove Services from board")
-
-    @memoized.memoized_method
-    def get_object(self):
-        try:
-            return api.iotronic.board_get(self.request,
-                                          self.kwargs['board_id'],
-                                          None)
-        except Exception:
-            redirect = reverse("horizon:iot:boards:index")
-            exceptions.handle(self.request,
-                              _('Unable to get board information.'),
-                              redirect=redirect)
-
-    def get_context_data(self, **kwargs):
-        context = super(RemoveServicesView, self).get_context_data(**kwargs)
-        args = (self.get_object().uuid,)
-        context['submit_url'] = reverse(self.submit_url, args=args)
-        return context
-
-    def get_initial(self):
-        board = self.get_object()
-
-        # Populate services
-        services = api.iotronic.services_on_board(self.request,
-                                                  board.uuid,
-                                                  True)
-        services.sort(key=lambda b: b["name"])
-
-        service_list = []
-        for service in services:
-            # service_list.append((service["uuid"], _(service["name"])))
-
-            # TO BE REMOVED
-            # ###########################################################
-            # We are filtering the services that starts with "webservice"
-            if ((service["name"] != "webservice") and
-               (service["name"] != "webservice_ssl")):
-                service_list.append((service["uuid"], _(service["name"])))
-            # ###########################################################
-
-        return {'uuid': board.uuid,
-                'name': board.name,
-                'service_list': service_list}
 
 
 class DetailView(tabs.TabView):

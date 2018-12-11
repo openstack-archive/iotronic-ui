@@ -51,11 +51,11 @@ class RestoreServices(tables.BatchAction):
 
     @staticmethod
     def action_present(count):
-        return u"Restore Services"
+        return u"Restore ALL Services"
 
     @staticmethod
     def action_past(count):
-        return u"Restore Services"
+        return u"Restored ALL Services"
 
     def allowed(self, request, board=None):
         return True
@@ -73,7 +73,6 @@ class EnableServiceLink(tables.LinkAction):
     # policy_rules = (("iot", "iot:service_action"),)
 
 
-"""
 class DisableServiceLink(tables.LinkAction):
     name = "disableservice"
     verbose_name = _("Disable Service(s)")
@@ -81,7 +80,6 @@ class DisableServiceLink(tables.LinkAction):
     classes = ("ajax-modal",)
     # icon = "plus"
     # policy_rules = (("iot", "iot:service_action"),)
-"""
 
 
 class RemovePluginsLink(tables.LinkAction):
@@ -91,15 +89,6 @@ class RemovePluginsLink(tables.LinkAction):
     classes = ("ajax-modal",)
     icon = "plus"
     # policy_rules = (("iot", "iot:remove_plugins"),)
-
-
-class RemoveServicesLink(tables.LinkAction):
-    name = "removeservices"
-    verbose_name = _("Remove Service(s)")
-    url = "horizon:iot:boards:removeservices"
-    classes = ("ajax-modal",)
-    icon = "plus"
-    # policy_rules = (("iot", "iot:remove_services"),)
 
 
 class AttachPortLink(tables.LinkAction):
@@ -120,7 +109,7 @@ class DetachPortLink(tables.LinkAction):
 
 class EnableWebServiceLink(tables.LinkAction):
     name = "enablewebservice"
-    verbose_name = _("Enable Web Services")
+    verbose_name = _("Enable Web Services Manager")
     url = "horizon:iot:boards:enablewebservice"
     classes = ("ajax-modal",)
     icon = "plus"
@@ -128,7 +117,7 @@ class EnableWebServiceLink(tables.LinkAction):
 
 class DisableWebServiceLink(tables.LinkAction):
     name = "disablewebservice"
-    verbose_name = _("Disable Web Services")
+    verbose_name = _("Disable Web Services Manager")
     url = "horizon:iot:boards:disablewebservice"
     classes = ("ajax-modal",)
     icon = "plus"
@@ -209,11 +198,9 @@ class BoardsTable(tables.DataTable):
     class Meta(object):
         name = "boards"
         verbose_name = _("boards")
-        # row_actions = (EditBoardLink, EnableServiceLink, DisableServiceLink,
-        row_actions = (EditBoardLink, EnableServiceLink,
+        row_actions = (EditBoardLink, EnableServiceLink, DisableServiceLink,
                        RestoreServices, AttachPortLink, DetachPortLink,
                        EnableWebServiceLink, DisableWebServiceLink,
-                       RemovePluginsLink, RemoveServicesLink,
-                       DeleteBoardsAction)
+                       RemovePluginsLink, DeleteBoardsAction)
         table_actions = (BoardFilterAction, CreateBoardLink,
                          DeleteBoardsAction)
