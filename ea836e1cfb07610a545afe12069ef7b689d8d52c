@@ -1,0 +1,8 @@
+Code-Review+2: Carmelo Romeo <caromeo@unime.it>
+Workflow+1: Carmelo Romeo <caromeo@unime.it>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Fri, 28 Dec 2018 20:49:13 +0000
+Reviewed-on: https://review.openstack.org/627732
+Project: openstack/iotronic-ui
+Branch: refs/heads/master
