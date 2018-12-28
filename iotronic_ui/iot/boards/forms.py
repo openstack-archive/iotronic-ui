@@ -87,7 +87,8 @@ class UpdateBoardForm(forms.SelfHandlingForm):
         label=_("Fleets List"),
         widget=forms.Select(
             attrs={'class': 'switchable', 'data-slug': 'slug-fleet'}),
-        help_text=_("Select fleet in this pool ")
+        help_text=_("Select fleet in this pool "),
+        required=False
     )
 
     mobile = forms.BooleanField(label=_("Mobile"), required=False)
@@ -162,6 +163,8 @@ class UpdateBoardForm(forms.SelfHandlingForm):
             #                       {"name": data["name"],
             #                        "mobile": data["mobile"],
             #                        "location": data["location"]})
+            if data["fleet_list"] == '':
+                data["fleet_list"] = None
 
             iotronic.board_update(request, data["uuid"],
                                   {"name": data["name"],
