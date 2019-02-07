@@ -13,6 +13,10 @@
       <dd>{{ board.type }}</dd>
       <dt>{% trans "ID" %}</dt>
       <dd>{{ board.uuid }}</dd>
+      <dt>{% trans "MAC" %}</dt>
+      <dd>{{ board.mac_addr }}</dd>
+      <dt>{% trans "LR version" %}</dt>
+      <dd>{{ board.lr_version }}</dd>
       <dt>{% trans "Code" %}</dt>
       <dd>{{ board.code }}</dd>
       <dt>{% trans "Creation data" %}</dt>
@@ -49,8 +53,10 @@
     <dl class="dl-horizontal">
       {% if services %}
         {% for service in services %}
-            <dt>{{ service.name }} [{{ service.protocol }}] {{ service.port }}</dt>
-            <dd>{{ service.public_port }}</dd>
+            <!--<dt>{{ service.name }} [{{ service.protocol }}] {{ service.port }}</dt>-->
+            <!--<dd>{{ service.public_port }}</dd>-->
+            <dt>{{ service.name }}</dt>
+            <dd>[{{ service.protocol }}] L: {{ service.port }}; P: {{ service.public_port }}</dd>
         {% endfor %}
       {% else %}
         <dd>--</dd>

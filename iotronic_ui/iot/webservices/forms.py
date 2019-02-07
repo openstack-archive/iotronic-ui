@@ -44,7 +44,8 @@ class ExposeWebserviceForm(forms.SelfHandlingForm):
         help_text=_("The local port used by the service")
     )
 
-    secure = forms.BooleanField(label=_("Secure"), initial=True)
+    secure = forms.BooleanField(label=_("Secure"), initial=True,
+                                widget=forms.HiddenInput)
 
     def __init__(self, *args, **kwargs):
         super(ExposeWebserviceForm, self).__init__(*args, **kwargs)

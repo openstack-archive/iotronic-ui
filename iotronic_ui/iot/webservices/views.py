@@ -86,8 +86,10 @@ class IndexView(tables.DataTableView):
             for ws in webservices:
                 if ws_en.board_uuid == ws.board_uuid:
 
-                    service_url = "https://" + ws.name + "." + ws_en.dns + "." + ws_en.zone
-                    ws_list.append({"service_url": service_url})
+                    service_url = "https://" + ws.name + "." + ws_en.dns +\
+                                  "." + ws_en.zone
+                    ws_list.append({"local_port": ws.port,
+                                    "service_url": service_url})
 
                     ws_en.uuid = ws.uuid
 
@@ -95,7 +97,6 @@ class IndexView(tables.DataTableView):
             ws_en.name = board.name
             ws_en._info.update(dict(webservices=ws_list))
 
-        # LOG.debug('WS: %s', en_webservices)
         return en_webservices
 
 
