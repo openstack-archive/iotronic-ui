@@ -3,7 +3,7 @@
   "description": "IoTronic Panels JavaScript tests",
   "repository": {
     "type": "git",
-    "url": "git://git.openstack.org/openstack/iotronic_ui"
+    "url": "https://git.openstack.org/openstack/iotronic_ui"
   },
   "version": "0.0.0",
   "private": true,
