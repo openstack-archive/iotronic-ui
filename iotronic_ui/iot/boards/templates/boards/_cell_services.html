@@ -1,8 +1,0 @@
-{% load i18n %}
-{% if services %}
-    {% for service in services %}
-        <dd>{{ service.name }} [{{ service.protocol }}] {{ service.port }} --> {{ service.public_port }}</dd>
-    {% endfor %}
-{% else %}
-    <dd>--</dd>
-{% endif %}
